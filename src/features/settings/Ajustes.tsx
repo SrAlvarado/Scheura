@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { updateSettings } from '../../db/db';
+import { db, updateSettings } from '../../db/db';
+import { useLiveQuery } from 'dexie-react-hooks';
 import { useSettings, useSubjects } from '../../db/hooks';
 import { clearAllData, loadDemoData } from '../../db/seed';
 import { todayISO } from '../../lib/dates';
@@ -13,6 +14,7 @@ import './settings.css';
 const DURATIONS = [15, 30, 45, 60, 90];
 
 export default function Ajustes() {
+  const account = useLiveQuery(async () => (await db.meta.get('sync.user'))?.value as string | undefined, []);
   const settings = useSettings();
   const subjects = useSubjects();
   const toast = useToast();
@@ -63,11 +65,16 @@ export default function Ajustes() {
       <main className="page page--pushed settings-page">
         <NavBar back="Hoy" backTo="/" title="Ajustes" />
 
+        <h2 className="group__label">Cuenta</h2>
+        <div className="group">
+          <CellLink to="/ajustes/sincronizar" label={account ? 'Conectado como' : 'Iniciar sesión'}
+            value={account ?? 'Usuario y contraseña'} />
+        </div>
+
         <h2 className="group__label">Organización</h2>
         <div className="group">
           <CellLink to="/ajustes/asignaturas" label="Asignaturas" value={subjects.length} />
           <CellLink to="/ajustes/avisos" label="Recordatorios" value={`${reminderCount} por defecto`} />
-          <CellLink to="/ajustes/sincronizar" label="Sincronizar dispositivos" value="Móvil y ordenador" />
         </div>
 
         <h2 className="group__label">Calendario y día</h2>
@@ -156,7 +163,7 @@ export default function Ajustes() {
           <CellLink to="/bienvenida" label="Instalar app" value="Pantalla de inicio" />
           <div className="cell">
             <span className="cell__label">Acerca de Scheura</span>
-            <span className="cell__value">versión 0.1.0</span>
+            <span className="cell__value">versión 0.2.0</span>
           </div>
         </div>
 

@@ -4,6 +4,7 @@ import { db, updateSettings } from '../../db/db';
 import { loadDemoData } from '../../db/seed';
 import { notificationPermission, requestNotificationPermission } from '../../lib/notifications';
 import { Segmented } from '../../components/ui';
+import LoginForm from './LoginForm';
 import { Icon } from '../../components/Icon';
 import './settings.css';
 
@@ -46,6 +47,7 @@ export default function Bienvenida() {
   const [demo, setDemo] = useState(false);
   const [hasData, setHasData] = useState(true);
   const [finishing, setFinishing] = useState(false);
+  const [account, setAccount] = useState<string | undefined>();
 
   useEffect(() => {
     const onPrompt = (e: Event) => {
@@ -94,7 +96,7 @@ export default function Bienvenida() {
         <ul className="welcome__features">
           <li>Tu día de un vistazo, con lo urgente primero.</li>
           <li>Cuánto llevas preparado cada examen.</li>
-          <li>Funciona sin conexión y sin cuenta.</li>
+          <li>Entra con tu usuario y tenlo en todos tus dispositivos.</li>
         </ul>
       </div>
     );
@@ -135,6 +137,24 @@ export default function Bienvenida() {
                 ? 'En iPhone tiene que ser desde Safari. Los avisos solo funcionan con la app añadida a la pantalla de inicio (iOS 16.4 o posterior).'
                 : 'Si no ves «Instalar app», busca «Añadir a pantalla de inicio» en el mismo menú.'}
             </p>
+          </>
+        )}
+      </div>
+    );
+  } else if (step === 3) {
+    body = (
+      <div className="welcome__step">
+        <h1 className="welcome__h">{account ? 'Sesión iniciada' : 'Tu cuenta'}</h1>
+        {account ? (
+          <div className="welcome__installed" role="status">
+            <span className="welcome__stepicon"><Icon name="check" size={22} stroke={2.4} /></span>
+            <span>Has entrado como <strong>{account}</strong>. Tus datos se sincronizan entre tus dispositivos.</span>
+          </div>
+        ) : (
+          <>
+            <p className="welcome__p">Entra con tu usuario para tener tu agenda en el móvil y en el ordenador. Si es tu primera vez, inventa uno.</p>
+            <LoginForm submitLabel="Entrar" onDone={({ user }) => { setAccount(user); setHasData(true); setStep(4); }} />
+            <p className="welcome__note">También puedes usar Scheura sin cuenta y entrar más tarde desde Ajustes › Sincronizar dispositivos.</p>
           </>
         )}
       </div>
@@ -189,20 +209,20 @@ export default function Bienvenida() {
   return (
     <div className="welcome">
       <div className="welcome__top">
-        <span className="eyebrow">Paso {step} de 3</span>
-        {step < 3 && (
+        <span className="eyebrow">Paso {step} de 4</span>
+        {step < 4 && (
           <button type="button" className="welcome__skip" onClick={() => finish(false)} disabled={finishing}>Saltar</button>
         )}
       </div>
       <main className="welcome__main">{body}</main>
       <footer className="welcome__foot">
-        <div className="welcome__dots" role="progressbar" aria-label="Progreso de la bienvenida" aria-valuemin={1} aria-valuemax={3} aria-valuenow={step}>
-          {[1, 2, 3].map((n) => <span key={n} data-on={n === step} />)}
+        <div className="welcome__dots" role="progressbar" aria-label="Progreso de la bienvenida" aria-valuemin={1} aria-valuemax={4} aria-valuenow={step}>
+          {[1, 2, 3, 4].map((n) => <span key={n} data-on={n === step} />)}
         </div>
         <div className="welcome__btns">
           {step > 1 && <button type="button" className="btn" onClick={() => setStep(step - 1)}>Atrás</button>}
-          {step < 3 ? (
-            <button type="button" className="btn btn--primary" onClick={() => setStep(step + 1)}>Siguiente</button>
+          {step < 4 ? (
+            <button type="button" className="btn btn--primary" onClick={() => setStep(step + 1)}>{step === 3 && !account ? 'Ahora no' : 'Siguiente'}</button>
           ) : (
             <button type="button" className="btn btn--primary" onClick={() => finish(demo)} disabled={finishing}>
               {finishing ? 'Preparando…' : 'Empezar'}

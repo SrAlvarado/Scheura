@@ -3,7 +3,8 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import { ConfirmSheet, NavBar, Sheet, useToast } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { serverEnabled } from '../../lib/config';
-import { cleanCode, codeFromCredentials, formatCode, generateSyncCode, normalizeCode, normalizeUser } from '../../sync/crypto';
+import { cleanCode, formatCode, generateSyncCode, normalizeCode } from '../../sync/crypto';
+import LoginForm from './LoginForm';
 import { getMeta, setMeta } from '../../db/db';
 import { disableSync, enableSync, getFullSyncCode, syncNow, useSyncState } from '../../sync/engine';
 import { encodeQr, qrPath } from '../../sync/qr';
@@ -54,9 +55,6 @@ export default function Sync() {
   const [now, setNow] = useState(Date.now());
   const handledLink = useRef(false);
   const [mode, setMode] = useState<'login' | 'code'>('login');
-  const [user, setUser] = useState('');
-  const [pass, setPass] = useState('');
-  const [loginError, setLoginError] = useState('');
   const [account, setAccount] = useState<string | undefined>();
 
   const enabled = !!state?.enabled;
@@ -119,30 +117,6 @@ export default function Sync() {
       if (linkCode) nav('/ajustes/sincronizar', { replace: true });
     } catch {
       toast.show({ text: 'No se pudo unir el dispositivo' });
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  // Usuario + contraseña → código derivado en el dispositivo (el servidor no ve ni usuario ni contraseña).
-  const login = async (e: FormEvent) => {
-    e.preventDefault();
-    setLoginError('');
-    if (!normalizeUser(user)) return setLoginError('Escribe tu usuario');
-    if (pass.length < 8) return setLoginError('La contraseña debe tener al menos 8 caracteres');
-    setBusy(true);
-    try {
-      const code = await codeFromCredentials(user, pass);
-      await enableSync(code, { join: true });
-      await setMeta('sync.user', normalizeUser(user));
-      setAccount(normalizeUser(user));
-      setPass('');
-      const r = await syncNow();
-      toast.show({
-        text: r.ok ? 'Has entrado. Tus datos están sincronizados' : 'Has entrado. La primera sincronización se reintentará sola',
-      });
-    } catch (err) {
-      setLoginError(err instanceof Error ? err.message : 'No se pudo entrar');
     } finally {
       setBusy(false);
     }
@@ -213,28 +187,10 @@ export default function Sync() {
         {mode === 'login' ? (
           <>
             <p className="sync-lead">Entra con tu usuario y contraseña para tener lo mismo en el móvil y en el ordenador.</p>
-            <form className="stack sync-actions" onSubmit={login} noValidate>
-              <label className="sync-field">
-                <span>Usuario</span>
-                <input className="field" value={user} onChange={(e) => setUser(e.target.value)} autoComplete="username"
-                  autoCapitalize="none" autoCorrect="off" spellCheck={false} placeholder="p. ej. markel" />
-              </label>
-              <label className="sync-field">
-                <span>Contraseña</span>
-                <input className="field" type="password" value={pass} onChange={(e) => setPass(e.target.value)}
-                  autoComplete="current-password" placeholder="Mínimo 8 caracteres" />
-              </label>
-              {loginError && <p className="sync-fine" role="alert" style={{ margin: 0, color: 'var(--danger)' }}>{loginError}</p>}
-              <button className="btn btn--primary btn--block" type="submit" disabled={busy}>{busy ? 'Entrando…' : 'Entrar'}</button>
-            </form>
-            <p className="sync-fine">
-              ¿Primera vez? Elige un usuario y una contraseña y se creará tu espacio. En tus otros dispositivos, entra con los mismos.
-              Cada persona tiene el suyo y nadie ve los datos de otro.
-            </p>
-            <p className="sync-fine">
-              Cifrado de extremo a extremo: el servidor no recibe tu contraseña ni puede leer tus datos.
-              Por eso, <strong>si olvidas la contraseña no se puede recuperar</strong> (tus datos seguirán en tus dispositivos).
-            </p>
+            <LoginForm onDone={({ user: u, ok }) => {
+              setAccount(u);
+              toast.show({ text: ok ? 'Has entrado. Tus datos están sincronizados' : 'Has entrado. La primera sincronización se reintentará sola' });
+            }} />
             <button className="btn btn--block btn--ghost" onClick={() => setMode('code')}>Usar un código de sincronización</button>
           </>
         ) : (
