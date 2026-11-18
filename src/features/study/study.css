@@ -1,0 +1,191 @@
+/* Estilos del área Estudio (prefijo st-). Usa los tokens de global.css. */
+
+.st-section { margin-top: 32px; border-top: 1px solid var(--ink); padding-top: 14px; display: flex; flex-direction: column; }
+.st-section--soft { border-top-color: var(--line); }
+.st-sechead { display: flex; justify-content: space-between; align-items: center; gap: 12px; min-height: 36px; padding-bottom: 4px; }
+.st-sechead h2 { margin: 0; font-family: var(--font-display); font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.st-sechead__aside { font-size: 12px; color: var(--ink-2); display: flex; align-items: center; }
+.st-link { display: inline-flex; align-items: center; gap: 2px; min-height: 44px; font-size: 14px; font-weight: 700; color: var(--pink-text); background: none; border: 0; padding: 0; }
+
+.st-segbar { display: flex; gap: 4px; }
+.st-segbar > span { flex: 1 1 0; height: 4px; border-radius: 2px; }
+.st-segbar--thick > span { height: 8px; }
+
+/* Filas genéricas */
+.st-row { display: flex; align-items: center; gap: 12px; min-height: 56px; border-bottom: 1px solid var(--line-2); }
+.st-row__text { display: flex; flex-direction: column; gap: 1px; }
+.st-row__title { font-size: 14px; font-weight: 500; }
+.st-row__meta { font-size: 12px; color: var(--ink-2); }
+.st-addbtn {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 10px; min-height: 48px; padding: 0;
+  border: 0; background: none; color: var(--ink); font-size: 14px; font-weight: 700; text-decoration: none;
+}
+.st-notes {
+  width: 100%; font-size: 14px; line-height: 1.55; color: #333; border: 0; padding: 4px 0; resize: vertical; background: none; min-height: 96px;
+}
+.st-notes::placeholder { color: var(--ink-4); }
+.st-notes:focus-visible { outline-offset: 4px; }
+
+/* ---------- Estudio (lista) ---------- */
+.st-tabs { margin-bottom: 8px; }
+.st-tabs .segmented button { min-height: 40px; font-size: 14px; }
+.st-list { display: grid; grid-template-columns: 1fr; column-gap: 32px; }
+@media (min-width: 900px) { .st-list { grid-template-columns: 1fr 1fr; } }
+.st-item {
+  display: flex; flex-direction: column; gap: 10px; padding: 18px 0; border-bottom: 1px solid var(--line);
+  color: var(--ink); text-decoration: none; min-width: 0;
+}
+.st-item__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.st-item__info { display: flex; flex-direction: column; gap: 6px; min-width: 0; align-items: flex-start; }
+.st-item__title { font-size: 17px; font-weight: 600; overflow-wrap: anywhere; }
+.st-item__meta { font-size: 13px; color: var(--ink-2); }
+.st-item__meta b { color: var(--ink); }
+.st-item__meta b.pink { color: var(--pink-text); }
+.st-item__foot { font-size: 12px; color: var(--ink-2); }
+.st-item--done .st-item__title { color: var(--ink-3); }
+.st-pct { font-family: var(--font-display); font-size: 44px; line-height: 1; font-weight: 800; letter-spacing: -0.05em; flex-shrink: 0; }
+.st-pct small { font-size: 22px; letter-spacing: -0.02em; }
+.st-pct--pink { color: var(--pink); }
+.st-pct--zero { color: var(--ink-3); }
+
+.st-toggle {
+  display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 48px; padding: 0;
+  margin-top: 20px; border: 0; background: none; color: var(--ink-2); font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase;
+}
+.st-toggle svg { transition: transform .2s; transform: rotate(90deg); }
+.st-toggle[aria-expanded='true'] svg { transform: rotate(-90deg); }
+
+.st-today { padding: 18px; border-radius: 16px; background: var(--bg-soft); display: flex; flex-direction: column; gap: 6px; }
+.st-today__row { display: flex; align-items: center; gap: 14px; min-height: 52px; color: var(--ink); text-decoration: none; }
+.st-today__time { display: flex; flex-direction: column; width: 56px; flex-shrink: 0; }
+.st-today__time b { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; color: var(--pink); }
+.st-today__time span { font-size: 12px; color: var(--ink-2); padding-top: 3px; }
+.st-today__title { font-size: 16px; font-weight: 600; display: block; }
+.st-today__meta { font-size: 13px; color: var(--ink-2); display: block; }
+.st-today__row--done .st-today__title { text-decoration: line-through; color: var(--ink-3); }
+.st-today__row--done .st-today__time b { color: var(--ink-3); }
+.st-side { margin-top: 28px; }
+@media (min-width: 900px) { .st-side { margin-top: 56px; position: sticky; top: 96px; } }
+
+/* ---------- Detalle examen / trabajo ---------- */
+.st-head { display: flex; flex-direction: column; gap: 4px; align-items: flex-start; }
+.st-head h1 { margin: 8px 0 0; font-family: var(--font-display); font-size: 28px; line-height: 1.1; font-weight: 800; letter-spacing: -0.03em; overflow-wrap: anywhere; }
+.st-head__meta { font-size: 14px; color: var(--ink-2); }
+.st-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 12px; padding-top: 22px; }
+.st-hero__pct { display: flex; flex-direction: column; }
+.st-hero__num { font-size: 96px; line-height: .86; color: var(--pink); }
+.st-hero__num small { font-size: 48px; letter-spacing: -0.03em; }
+.st-hero__num--zero { color: var(--ink-3); }
+.st-hero__label { font-size: 14px; font-weight: 600; padding-top: 10px; }
+.st-hero__count { display: flex; flex-direction: column; align-items: flex-end; padding-bottom: 2px; text-align: right; }
+.st-hero__count b { font-family: var(--font-display); font-size: 40px; line-height: 1; font-weight: 800; letter-spacing: -0.03em; }
+.st-hero__count span { font-size: 14px; font-weight: 600; }
+.st-hero__count--urgent b { color: var(--pink); }
+.st-legend { display: flex; flex-wrap: wrap; gap: 6px 16px; padding-top: 10px; font-size: 12px; color: var(--ink-2); }
+.st-legend span { display: inline-flex; align-items: center; gap: 6px; }
+.st-legend i { width: 8px; height: 8px; border-radius: 2px; display: inline-block; }
+@media (min-width: 900px) { .st-hero__num { font-size: 112px; } .st-hero__num small { font-size: 56px; } }
+
+.st-topic {
+  display: flex; align-items: center; gap: 14px; min-height: 56px; width: 100%; padding: 0; border: 0; border-bottom: 1px solid var(--line-2);
+  background: none; color: var(--ink); text-align: left;
+}
+.st-topic__n { width: 22px; font-family: var(--font-display); font-size: 15px; font-weight: 700; color: var(--ink-2); flex-shrink: 0; }
+.st-topic__name { flex: 1 1 auto; min-width: 0; font-size: 15px; font-weight: 500; overflow-wrap: anywhere; }
+.st-topic__state { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; flex-shrink: 0; }
+.st-topic__state i { width: 10px; height: 10px; border-radius: 50%; box-sizing: border-box; border: 2px solid; display: inline-block; }
+.st-topic__state--estudiado { color: var(--ink); }
+.st-topic__state--estudiado i { border-color: var(--pink); background: var(--pink); }
+.st-topic__state--repasar { color: var(--pink-text); }
+.st-topic__state--repasar i { border-color: var(--pink); background: #fff; }
+.st-topic__state--pendiente { color: var(--ink-2); }
+.st-topic__state--pendiente i { border-color: #bdbdbd; background: #fff; }
+
+/* Sesiones (plan en detalle) */
+.st-sess { display: flex; align-items: center; gap: 10px; min-height: 52px; border-bottom: 1px solid var(--line-2); }
+.st-sess__day { width: 56px; font-size: 13px; font-weight: 500; color: var(--ink-2); flex-shrink: 0; }
+.st-sess__day--today { font-weight: 700; color: var(--pink-text); }
+.st-sess__what { flex: 1 1 auto; min-width: 0; font-size: 14px; font-weight: 500; color: var(--ink); text-decoration: none; min-height: 44px; display: flex; align-items: center; }
+.st-sess__what--done { text-decoration: line-through; color: var(--ink-3); }
+.st-sess__time { font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.st-badge { font-size: 11px; font-weight: 700; color: #fff; background: var(--pink); padding: 3px 7px; border-radius: 4px; letter-spacing: .04em; }
+
+/* Círculo de hecho */
+.st-check {
+  width: 44px; height: 44px; margin: 0 -10px 0 -12px; padding: 0; border: 0; background: none; display: flex; align-items: center; justify-content: center; flex-shrink: 0; color: #fff;
+}
+.st-check > span {
+  width: 20px; height: 20px; border-radius: 50%; box-sizing: border-box; border: 2px solid var(--ink); background: #fff;
+  display: flex; align-items: center; justify-content: center;
+}
+.st-check[aria-pressed='true'] > span { border-color: #bdbdbd; background: #bdbdbd; }
+
+.st-actions { display: flex; flex-direction: column; gap: 8px; margin-top: 32px; }
+
+/* ---------- Formulario ---------- */
+.st-form-label { font-size: 11px; font-weight: 700; letter-spacing: .1em; color: var(--ink-2); text-transform: uppercase; margin: 20px 0 10px; display: flex; justify-content: space-between; align-items: center; }
+.st-form-label a { letter-spacing: 0; text-transform: none; font-size: 13px; min-height: 44px; display: inline-flex; align-items: center; }
+.st-cell-input { flex: 1 1 auto; min-width: 0; border: 0; background: none; text-align: right; color: var(--ink-2); font-size: 15px; min-height: 36px; }
+.st-cell-input:focus { color: var(--ink); }
+.st-trow { display: flex; align-items: center; gap: 4px; min-height: 52px; border-bottom: 1px solid var(--line-2); }
+.st-trow input { flex: 1 1 auto; min-width: 0; border: 0; background: none; font-size: 15px; font-weight: 500; min-height: 44px; padding: 0 4px; }
+.st-trow .iconbtn { color: var(--ink-2); }
+.st-trow .iconbtn:disabled { opacity: .3; cursor: default; }
+.st-rot-up { transform: rotate(-90deg); }
+.st-rot-down { transform: rotate(90deg); }
+.st-newtopic { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+.st-import {
+  display: flex; align-items: center; gap: 14px; width: 100%; padding: 14px 16px; margin: 6px 0 4px; border-radius: 14px;
+  border: 1.5px dashed #d0d0d0; background: #fff; color: var(--ink); text-align: left; cursor: pointer;
+}
+.st-import:focus-within { outline: 2px solid var(--pink); outline-offset: 2px; }
+.st-import__title { display: block; font-size: 15px; font-weight: 700; }
+.st-import__sub { display: block; font-size: 12px; color: var(--ink-2); }
+.st-extracted { margin: 8px 0; padding: 16px; border-radius: 14px; background: var(--bg-soft); display: flex; flex-direction: column; gap: 6px; }
+.st-eyebrow { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--pink-text); }
+.st-check-row { display: flex; align-items: center; gap: 12px; min-height: 44px; font-size: 14px; }
+.st-check-row input { width: 20px; height: 20px; accent-color: var(--pink); flex-shrink: 0; }
+.st-planbox { margin-top: 28px; border: 1px solid var(--line); border-radius: 14px; padding: 4px 16px; }
+.st-planbox .cell { padding-left: 0; padding-right: 0; }
+.st-planbox select, .st-planbox input[type='time'] { border: 0; background: none; color: var(--ink-2); font-size: 15px; min-height: 36px; text-align: right; }
+.st-pending-file { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--ink-2); min-height: 44px; }
+
+/* ---------- Plan de estudio ---------- */
+.st-plan-title { margin: 4px 0 0; font-family: var(--font-display); font-size: 28px; line-height: 1.1; font-weight: 800; letter-spacing: -0.03em; }
+.st-tray { margin-top: 22px; display: flex; flex-direction: column; gap: 8px; }
+.st-tray__item { display: flex; align-items: center; gap: 12px; padding: 10px 14px; border-radius: 14px; background: var(--pink-soft); }
+.st-tray__item span { flex: 1 1 auto; min-width: 0; font-size: 14px; font-weight: 600; }
+.st-tray__item .btn { background: #fff; }
+.st-days { margin-top: 26px; border-top: 1px solid var(--ink); display: flex; flex-direction: column; }
+.st-day { display: flex; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--line-2); }
+.st-day__date { width: 44px; display: flex; flex-direction: column; flex-shrink: 0; }
+.st-day__dow { font-size: 12px; font-weight: 600; color: var(--ink-2); }
+.st-day__n { font-family: var(--font-display); font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.05; }
+.st-day--today .st-day__dow { color: var(--pink-text); }
+.st-day__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; justify-content: center; }
+.st-day__free { font-size: 14px; color: var(--ink-3); }
+.st-day__today { font-size: 11px; font-weight: 700; letter-spacing: .08em; color: var(--pink-text); }
+.st-psess { display: flex; align-items: center; gap: 8px; min-height: 52px; padding: 0 4px 0 12px; border-radius: 12px; border: 1px solid var(--line); }
+.st-psess__body { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 1px; color: var(--ink); text-decoration: none; padding: 6px 0; }
+.st-psess__title { font-size: 15px; font-weight: 600; overflow-wrap: anywhere; }
+.st-psess__meta { font-size: 12px; color: var(--ink-2); }
+.st-psess--done { background: var(--bg-soft); }
+.st-psess--done .st-psess__title { text-decoration: line-through; color: var(--ink-3); }
+.st-psess .st-check { margin: 0 -8px 0 -12px; }
+.st-quit { min-height: 44px; padding: 0 10px; border: 0; background: none; color: var(--ink-2); font-size: 13px; font-weight: 600; }
+.st-day--exam { border-bottom: 1px solid var(--ink); padding: 16px 0; }
+.st-day--exam .st-day__dow { color: var(--pink-text); }
+.st-day--exam .st-day__n { color: var(--pink); }
+.st-examday { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border-radius: 12px; background: var(--pink); color: #fff; }
+.st-examday b { display: block; font-size: 15px; }
+.st-examday span { display: block; font-size: 12px; font-weight: 500; }
+.st-daygrid { display: flex; flex-wrap: wrap; gap: 8px; }
+.st-daygrid .btn { min-width: 72px; }
+
+/* ---------- Trabajo ---------- */
+.st-steps .timeline-row__time { width: 52px; }
+.st-steps .timeline-row__time b { display: block; font-weight: 600; color: var(--ink); }
+.st-steps .timeline-row__time--current b { color: var(--pink-text); font-weight: 700; }
+.st-steps .tdot { width: 44px; height: 44px; margin: -12px -12px -8px; padding: 0; cursor: pointer; }
+.st-steps .timeline-row__rail { width: 20px; }
+.st-steps .timeline-row__body--done .timeline-row__title { text-decoration: line-through; color: var(--ink-3); }

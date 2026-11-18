@@ -1,0 +1,114 @@
+/* Resumen semanal */
+.sum .sum-h2 { margin: 0 0 12px; }
+.sum .tnum { font-variant-numeric: tabular-nums; }
+.sum-strong { color: var(--ink); font-weight: 700; }
+
+.sum-now {
+  background: none; border: 0; padding: 0; min-height: 44px; min-width: 44px;
+  font-size: 13px; font-weight: 700; color: var(--pink-text); white-space: nowrap;
+}
+
+/* Números grandes */
+.sum-numbers {
+  display: grid; grid-template-columns: 1fr 1fr 1.6fr; gap: 12px;
+  padding-bottom: 20px; border-bottom: 1px solid var(--line);
+}
+.sum-num { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.sum-num__value { font-size: 40px; line-height: .95; letter-spacing: -0.05em; white-space: nowrap; }
+.sum-num__value--pink { color: var(--pink); }
+.sum-num__label { font-size: 13px; color: var(--ink-2); }
+.sum-unit { font-size: 18px; letter-spacing: -0.02em; }
+.sum-num--desk { display: none; }
+
+/* Gráfico de barras */
+.sum-chart {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; align-items: end; height: 132px;
+}
+.sum-bar { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: 6px; height: 100%; }
+.sum-bar__num { font-size: 12px; font-weight: 700; font-variant-numeric: tabular-nums; min-height: 16px; line-height: 16px; }
+.sum-bar__fill { width: 100%; max-width: 28px; background: var(--ink); border-radius: 4px 4px 2px 2px; }
+.sum-bar--today .sum-bar__fill { background: var(--pink); }
+.sum-bar--today .sum-bar__num { color: var(--pink-text); }
+.sum-bar--future .sum-bar__fill { height: 6px; background: transparent; border: 1px dashed #bdbdbd; }
+.sum-chart__axis {
+  display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px;
+  padding-top: 8px; margin-top: 2px; border-top: 1px solid var(--ink);
+}
+.sum-chart__axis span { display: flex; flex-direction: column; align-items: center; font-size: 12px; font-weight: 500; color: var(--ink-2); }
+.sum-chart__axis small { display: none; font-size: 11px; font-weight: 400; color: var(--ink-2); }
+.sum-chart__axis .is-today { color: var(--pink-text); font-weight: 700; }
+
+/* Por asignatura */
+.sum-subj { display: flex; flex-direction: column; gap: 8px; padding: 12px 0; border-bottom: 1px solid var(--line-2); }
+.sum-subj__top { gap: 10px; }
+.sum-subj__name { font-size: 15px; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.sum-subj__bar { margin-left: 20px; }
+
+/* Fechas importantes */
+.sum-date {
+  display: flex; align-items: center; gap: 14px; min-height: 44px; padding: 10px 0;
+  color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line-2);
+}
+.sum-date > svg { color: var(--ink-4); flex-shrink: 0; }
+.sum-date__day { width: 44px; display: flex; flex-direction: column; flex-shrink: 0; }
+.sum-date__day .big-number { font-size: 24px; letter-spacing: -0.03em; }
+.sum-date__body { display: flex; flex-direction: column; gap: 6px; }
+.sum-date__top { display: flex; justify-content: space-between; gap: 8px; }
+.sum-pct { font-size: 13px; font-weight: 700; color: var(--pink-text); font-variant-numeric: tabular-nums; }
+
+/* Listas */
+.sum-listhead { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.sum-row { gap: 12px; min-height: 52px; }
+.sum-row__text { display: flex; flex-direction: column; gap: 1px; }
+.sum-row__title { font-size: 14px; }
+.sum-row__title--done { color: #424242; }
+.sum-row__when { font-size: 12px; font-weight: 700; white-space: nowrap; text-align: right; }
+.sum-ring { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--ink); flex-shrink: 0; box-sizing: border-box; }
+.sum-ring--late { border-color: var(--pink); }
+.sum-ring--done { border: 0; background: #bdbdbd; }
+.sum-more {
+  display: flex; align-items: center; gap: 8px; min-height: 48px; margin-top: 4px;
+  color: var(--pink-text); font-size: 14px; font-weight: 700; text-decoration: none;
+}
+.sum-more__count { font-size: 12px; color: var(--ink-2); font-weight: 600; }
+
+.sum-desk-only { display: none; }
+.sum-empty__title { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 4px; }
+.sum .empty p { margin: 0 0 16px; }
+
+@media (max-width: 380px) {
+  .sum-num__value { font-size: 34px; }
+  .sum-unit { font-size: 15px; }
+}
+
+/* Ordenador */
+@media (min-width: 900px) {
+  .sum .large-header { margin-bottom: 28px; }
+  .sum-numbers { display: flex; flex-wrap: wrap; gap: 24px 40px; padding-bottom: 28px; }
+  .sum-num { flex: 1 1 160px; gap: 6px; }
+  .sum-num--wide { flex-basis: 220px; }
+  .sum-num--desk { display: flex; }
+  .sum-num__value { font-size: 72px; line-height: .9; }
+  .sum-unit { font-size: 28px; }
+  .sum-num__label { font-size: 14px; }
+
+  .sum .sum-h2 {
+    text-transform: none; letter-spacing: -0.02em; color: var(--ink);
+    font-family: var(--font-display); font-size: 20px; font-weight: 700;
+  }
+  .sum-chart { height: 200px; gap: 16px; }
+  .sum-chart__axis { gap: 16px; padding-top: 10px; }
+  .sum-chart__axis span { font-size: 13px; }
+  .sum-chart__axis small { display: block; }
+  .sum-bar { gap: 8px; }
+  .sum-bar__num { font-family: var(--font-display); font-size: 16px; font-weight: 800; min-height: 20px; line-height: 20px; }
+  .sum-bar__fill { max-width: 56px; border-radius: 6px 6px 2px 2px; }
+
+  .sum-cols { gap: 40px; }
+  .sum-desk-only { display: block; }
+  span.sum-desk-only { display: inline; }
+  .sum-listhead { border-bottom: 1px solid var(--ink); padding-bottom: 10px; margin-bottom: 0; }
+  .sum-listhead .sum-h2 { margin: 0; }
+  .sum-date__day { width: 48px; }
+  .sum-date__day .big-number { font-size: 28px; }
+}
