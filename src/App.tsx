@@ -3,6 +3,8 @@ import { HashRouter, Navigate, Route, Routes, useNavigate } from 'react-router-d
 import { Shell } from './components/Shell';
 import { getSettings } from './db/db';
 import { startReminderLoop } from './lib/notifications';
+import { startPushLoop } from './push/push';
+import { startSyncLoop } from './sync/engine';
 
 // Cada pantalla vive en src/features/<área>/<Pantalla>.tsx con export default.
 const Hoy = lazy(() => import('./features/home/Hoy'));
@@ -22,6 +24,7 @@ const Resumen = lazy(() => import('./features/summary/Resumen'));
 const Ajustes = lazy(() => import('./features/settings/Ajustes'));
 const Asignaturas = lazy(() => import('./features/settings/Asignaturas'));
 const Bienvenida = lazy(() => import('./features/settings/Bienvenida'));
+const Sync = lazy(() => import('./features/settings/Sync'));
 
 function FirstRun() {
   const nav = useNavigate();
@@ -29,7 +32,10 @@ function FirstRun() {
     getSettings().then((s) => {
       if (!s.onboarded && !location.hash.includes('bienvenida')) nav('/bienvenida', { replace: true });
     });
-    return startReminderLoop();
+    const stopRem = startReminderLoop();
+    const stopPush = startPushLoop();
+    const stopSync = startSyncLoop();
+    return () => { stopRem(); stopPush(); stopSync(); };
   }, [nav]);
   return null;
 }
@@ -60,6 +66,8 @@ export default function App() {
             <Route path="/ajustes" element={<Ajustes />} />
             <Route path="/ajustes/asignaturas" element={<Asignaturas />} />
             <Route path="/ajustes/avisos" element={<Avisos />} />
+            <Route path="/ajustes/sincronizar" element={<Sync />} />
+            <Route path="/sync" element={<Sync />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
         </Routes>

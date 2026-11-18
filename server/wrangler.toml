@@ -1,0 +1,23 @@
+name = "scheura-api"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "scheura"
+database_id = "68538e5c-5d6f-4289-90f3-5f0d6f36ed4e"
+migrations_dir = "migrations"
+
+[triggers]
+crons = ["* * * * *"]
+
+[vars]
+ALLOWED_ORIGINS = "https://sralvarado.github.io,http://localhost:5173,http://localhost:4173"
+VAPID_PUBLIC_KEY = "BFOJ_jdQYFbD2kjaBZYyoR2k6Ds86ISKE2MrGw_kTZ7sFs6nQwZuZ1pIbXGMtiPFaKL9u4o0inL4-__Uv5FoBV8"
+VAPID_SUBJECT = "https://sralvarado.github.io/Scheura/"
+# Max pushes sent per cron run (free plan: 50 subrequests and 10 ms CPU per invocation).
+PUSH_BATCH = "40"
+
+# Secret (not in this file): npx wrangler secret put VAPID_PRIVATE_JWK
+# Value = JSON string of the EC P-256 private JWK ({"kty":"EC","crv":"P-256","x":...,"y":...,"d":...}).
+# For local `wrangler dev`, put it in server/.dev.vars as VAPID_PRIVATE_JWK='{"kty":...}'.

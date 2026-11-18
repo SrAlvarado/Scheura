@@ -1,0 +1,5 @@
+/* Avisos: tarjeta «Avisos en este dispositivo» (Web Push). */
+.av-perm__actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.av-perm__actions .btn--primary { flex: 1 1 auto; }
+.av-perm__error { color: var(--danger); }
+.av-titles { margin-top: 12px; }

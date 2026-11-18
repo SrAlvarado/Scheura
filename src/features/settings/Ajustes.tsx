@@ -67,6 +67,7 @@ export default function Ajustes() {
         <div className="group">
           <CellLink to="/ajustes/asignaturas" label="Asignaturas" value={subjects.length} />
           <CellLink to="/ajustes/avisos" label="Recordatorios" value={`${reminderCount} por defecto`} />
+          <CellLink to="/ajustes/sincronizar" label="Sincronizar dispositivos" value="Móvil y ordenador" />
         </div>
 
         <h2 className="group__label">Calendario y día</h2>

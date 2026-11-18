@@ -13,14 +13,27 @@ import { capitalize } from '../../lib/dates';
 import {
   notificationPermission, requestNotificationPermission, upcomingReminders, type UpcomingReminder,
 } from '../../lib/notifications';
+import { disablePush, enablePush, getPushStatus, sendTestPush, uploadSchedule, type PushStatus } from '../../push/push';
 import { ReminderPresetSheet, remLabel, sortReminders } from './ReminderPicker';
 import './tasks.css';
+import './avisos.css';
 
-const PERM_TEXT: Record<NotificationPermission | 'unsupported', { label: string; color: string; help: string }> = {
-  granted: { label: 'Avisos activados', color: '#1F7A4A', help: 'Scheura puede mostrarte notificaciones en este dispositivo.' },
-  default: { label: 'Avisos sin activar', color: 'var(--pink)', help: 'Activa el permiso para recibir los recordatorios como notificaciones.' },
-  denied: { label: 'Avisos bloqueados', color: 'var(--danger)', help: 'Has bloqueado las notificaciones. Puedes permitirlas en los ajustes del navegador para este sitio.' },
-  unsupported: { label: 'No disponible aquí', color: 'var(--ink-3)', help: 'Este navegador no admite notificaciones. En iPhone, abre Scheura desde el icono de la pantalla de inicio.' },
+type Tone = 'ok' | 'pending' | 'bad' | 'neutral';
+const TONE_COLOR: Record<Tone, string> = { ok: '#1F7A4A', pending: 'var(--pink)', bad: 'var(--danger)', neutral: 'var(--ink-3)' };
+
+const STATUS_TEXT: Record<PushStatus, { label: string; tone: Tone; help: string }> = {
+  on: { label: 'Avisos activados', tone: 'ok', help: 'Recibirás avisos aunque la app esté cerrada.' },
+  off: { label: 'Avisos sin activar', tone: 'pending', help: 'Actívalos para recibir los recordatorios en este dispositivo, aunque la app esté cerrada.' },
+  denied: {
+    label: 'Avisos bloqueados', tone: 'bad',
+    help: 'Has bloqueado las notificaciones de Scheura. Para volver a permitirlas: en iPhone, Ajustes, Notificaciones, Scheura; en Android, mantén pulsado el icono de Scheura, Información de la app, Notificaciones; en el ordenador, pulsa el candado junto a la dirección web y permite las notificaciones. Después vuelve a esta pantalla.',
+  },
+  'needs-install': { label: 'Falta un paso', tone: 'pending', help: 'En iPhone, añade Scheura a la pantalla de inicio y ábrela desde ahí. Solo así puede enviarte avisos.' },
+  'server-disabled': {
+    label: 'Avisos solo con la app abierta', tone: 'neutral',
+    help: 'Esta versión de Scheura no tiene servidor de avisos: los recordatorios llegan mientras la app está abierta o estuvo abierta hace poco. Si la cierras del todo, los verás al volver a abrirla.',
+  },
+  unsupported: { label: 'No disponible aquí', tone: 'neutral', help: 'Este navegador no admite notificaciones. Prueba con Chrome, Edge, Firefox o Safari actualizados.' },
 };
 
 function dayLabel(d: Date) {
@@ -32,6 +45,9 @@ function dayLabel(d: Date) {
 export default function Avisos() {
   const settings = useSettings();
   const [perm, setPerm] = useState(notificationPermission());
+  const [status, setStatus] = useState<PushStatus | undefined>();
+  const [busy, setBusy] = useState(false);
+  const [msg, setMsg] = useState<{ text: string; error?: boolean } | null>(null);
   const [upcoming, setUpcoming] = useState<UpcomingReminder[] | undefined>();
   const [adding, setAdding] = useState<TaskType | null>(null);
 
@@ -41,12 +57,50 @@ export default function Avisos() {
     return () => { alive = false; };
   }, []);
 
-  const activate = async () => setPerm(await requestNotificationPermission());
+  useEffect(() => {
+    let alive = true;
+    const refresh = () => getPushStatus().then((st) => {
+      if (!alive) return;
+      setStatus(st);
+      setPerm(notificationPermission());
+    });
+    refresh();
+    // Al volver de los ajustes del sistema (p. ej. tras desbloquear el permiso), recalcular.
+    const onVis = () => document.visibilityState === 'visible' && refresh();
+    document.addEventListener('visibilitychange', onVis);
+    return () => { alive = false; document.removeEventListener('visibilitychange', onVis); };
+  }, []);
+
+  const run = async (fn: () => Promise<void>) => {
+    setBusy(true);
+    setMsg(null);
+    try { await fn(); } catch {
+      setMsg({ text: 'No se ha podido conectar con el servidor de avisos. Comprueba la conexión e inténtalo de nuevo.', error: true });
+    } finally { setBusy(false); }
+  };
+
+  const activatePush = () => run(async () => {
+    const st = await enablePush();
+    setStatus(st);
+    setPerm(notificationPermission());
+    if (st === 'on') setMsg({ text: 'Listo. Prueba a enviarte un aviso.' });
+  });
+  const deactivatePush = () => run(async () => { setStatus(await disablePush()); });
+  const testPush = () => run(async () => {
+    await sendTestPush(5000);
+    setMsg({ text: 'Aviso de prueba programado. Bloquea el móvil o cierra la app: llegará en menos de un minuto.' });
+  });
+  const activateLocal = async () => setPerm(await requestNotificationPermission());
+
+  const setShowTitles = async (v: boolean) => {
+    await updateSettings({ pushShowTitles: v });
+    if (status === 'on') uploadSchedule().catch(() => undefined);
+  };
 
   const setDefaults = (type: TaskType, list: Reminder[]) =>
     updateSettings({ defaultReminders: { ...settings.defaultReminders, [type]: list } });
 
-  const p = PERM_TEXT[perm];
+  const st = status ? STATUS_TEXT[status] : undefined;
   const now = Date.now();
   const shown = (upcoming ?? []).filter((u) => u.at.getTime() >= now - 3600_000).slice(0, 12);
 
@@ -61,18 +115,52 @@ export default function Avisos() {
       <div className="cols av-cols">
         <div className="col-main">
           <section className="section">
-            <div className="card av-perm">
-              <span className="av-perm__state"><span className="dot" style={{ background: p.color }} aria-hidden="true" />{p.label}</span>
-              <span className="muted small">{p.help}</span>
-              {perm === 'default' && (
-                <button type="button" className="btn btn--primary btn--block" onClick={activate}>
-                  <Icon name="bell" size={18} />Activar avisos
-                </button>
-              )}
-              <span className="muted xsmall">
-                Por ahora los avisos llegan mientras la app está abierta o estuvo abierta hace poco (en segundo plano). Si la cierras del todo, los verás al volver a abrirla.
-              </span>
-            </div>
+            <h2 className="section-label">Avisos en este dispositivo</h2>
+            {st && (
+              <div className="card av-perm" aria-live="polite">
+                <span className="av-perm__state"><span className="dot" style={{ background: TONE_COLOR[st.tone] }} aria-hidden="true" />{st.label}</span>
+                <span className="muted small">{st.help}</span>
+
+                {status === 'off' && (
+                  <button type="button" className="btn btn--primary btn--block" onClick={activatePush} disabled={busy}>
+                    <Icon name="bell" size={18} />{busy ? 'Activando…' : 'Activar avisos'}
+                  </button>
+                )}
+                {status === 'on' && (
+                  <div className="av-perm__actions">
+                    <button type="button" className="btn btn--primary" onClick={testPush} disabled={busy}>
+                      <Icon name="bell" size={18} />Enviar aviso de prueba
+                    </button>
+                    <button type="button" className="btn btn--danger" onClick={deactivatePush} disabled={busy}>Desactivar</button>
+                  </div>
+                )}
+                {status === 'needs-install' && (
+                  <Link to="/bienvenida" className="btn btn--block">Ver cómo añadirla</Link>
+                )}
+                {status === 'server-disabled' && perm === 'default' && (
+                  <button type="button" className="btn btn--primary btn--block" onClick={activateLocal}>
+                    <Icon name="bell" size={18} />Permitir notificaciones
+                  </button>
+                )}
+                {status === 'server-disabled' && perm === 'granted' && (
+                  <span className="muted xsmall">Notificaciones permitidas en este dispositivo.</span>
+                )}
+                {msg && <span className={`small${msg.error ? ' av-perm__error' : ''}`} role={msg.error ? 'alert' : 'status'}>{msg.text}</span>}
+              </div>
+            )}
+            {(status === 'on' || status === 'off') && (
+              <div className="group av-titles">
+                <div className="cell">
+                  <span className="cell__label">
+                    Mostrar el título en los avisos
+                    <span className="muted small" style={{ display: 'block' }}>
+                      Para mostrarlo, el título se envía al servidor de avisos. Si lo desactivas verás «Tienes un aviso pendiente».
+                    </span>
+                  </span>
+                  <Switch label="Mostrar el título en los avisos" checked={settings.pushShowTitles ?? true} onChange={setShowTitles} />
+                </div>
+              </div>
+            )}
           </section>
 
           <section className="section">

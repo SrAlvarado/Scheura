@@ -5,6 +5,8 @@ export type ColorKey = 'azul' | 'ambar' | 'verde' | 'lila' | 'rosa' | 'turquesa'
 
 export interface Subject {
   id: string;
+  /** ms de la última modificación local (lo pone db.ts; se usa para sincronizar) */
+  updatedAt?: number;
   name: string;
   color: ColorKey;
   teacher?: string;
@@ -35,6 +37,8 @@ export interface Repeat {
 
 export interface Task {
   id: string;
+  /** ms de la última modificación local (lo pone db.ts; se usa para sincronizar) */
+  updatedAt?: number;
   title: string;
   description?: string;
   date?: string; // yyyy-MM-dd (sin fecha = bandeja)
@@ -72,6 +76,8 @@ export interface Topic {
 
 export interface Exam {
   id: string;
+  /** ms de la última modificación local (lo pone db.ts; se usa para sincronizar) */
+  updatedAt?: number;
   subjectId?: string;
   title: string;
   date: string;
@@ -94,6 +100,8 @@ export type OwnerType = 'task' | 'exam' | 'subject';
 
 export interface Attachment {
   id: string;
+  /** ms de la última modificación local (lo pone db.ts; se usa para sincronizar) */
+  updatedAt?: number;
   ownerType: OwnerType;
   ownerId: string;
   name: string;
@@ -107,6 +115,9 @@ export interface Attachment {
 
 export interface Settings {
   id: 'app';
+  updatedAt?: number;
+  /** Mostrar el título de la tarea en los avisos push (si no, texto genérico) */
+  pushShowTitles?: boolean;
   weekStart: 0 | 1; // 1 = lunes
   calendarView: 'mes' | 'semana';
   daySort: 'hora' | 'importancia';
@@ -137,4 +148,18 @@ export interface AgendaItem {
   parentId?: string;
   /** progreso 0..1 para exámenes y trabajos */
   progress?: number;
+}
+
+/** Registro de borrado para propagar eliminaciones al sincronizar. key = `${table}:${id}` */
+export interface Tombstone {
+  key: string;
+  table: string;
+  id: string;
+  deletedAt: number;
+}
+
+/** Valores internos (estado de sincronización, id de dispositivo…). */
+export interface Meta {
+  key: string;
+  value: unknown;
 }
