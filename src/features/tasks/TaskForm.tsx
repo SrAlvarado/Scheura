@@ -403,7 +403,7 @@ export default function TaskForm() {
               <div className="group__label">Recordatorios</div>
               <div className="group">
                 <div className="cell cell--stack">
-                  <ReminderChips value={reminders} onChange={changeReminders} />
+                  <ReminderChips value={reminders} onChange={changeReminders} date={date || undefined} time={time || undefined} />
                 </div>
               </div>
               <p className="group__foot">{reminders.length ? `${reminders.length} ${reminders.length === 1 ? 'aviso' : 'avisos'}` : 'Sin avisos'}. <Link to="/ajustes/avisos">Avisos por defecto</Link></p>

@@ -9,6 +9,7 @@ import { uid } from '../../lib/id';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { SectionHead } from './common';
+import { CustomReminderSheet } from '../../components/CustomReminder';
 
 type Preset = { kind: 'before'; minutes: number } | { kind: 'dayAt'; days: number; time: string };
 
@@ -48,6 +49,7 @@ export function ReminderList({ title, reminders, date, time, onChange }: {
   onChange: (next: Reminder[]) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const [custom, setCustom] = useState(false);
   const present = new Set(reminders.map(reminderKey));
   const available = REMINDER_PRESETS.filter((p) => !present.has(reminderKey(p)));
   const list = date ? sortReminders(reminders, date, time) : reminders;
@@ -73,11 +75,9 @@ export function ReminderList({ title, reminders, date, time, onChange }: {
           </div>
         );
       })}
-      {available.length > 0 && (
-        <button type="button" className="st-addbtn" onClick={() => setOpen(true)}>
-          <Icon name="plus" size={18} stroke={2} />Añadir aviso
-        </button>
-      )}
+      <button type="button" className="st-addbtn" onClick={() => setOpen(true)}>
+        <Icon name="plus" size={18} stroke={2} />Añadir aviso
+      </button>
       <Sheet open={open} onClose={() => setOpen(false)} title="Añadir aviso">
         <div className="stack" style={{ gap: 0 }}>
           {available.map((p) => (
@@ -92,8 +92,13 @@ export function ReminderList({ title, reminders, date, time, onChange }: {
             </button>
           ))}
         </div>
-        <button type="button" className="btn btn--block btn--ghost" style={{ marginTop: 12 }} onClick={() => setOpen(false)}>Cancelar</button>
+        <button type="button" className="btn btn--block" style={{ marginTop: 12 }} onClick={() => { setOpen(false); setCustom(true); }}>
+          <Icon name="plus" size={18} stroke={2.2} />Personalizar un aviso
+        </button>
+        <button type="button" className="btn btn--block btn--ghost" style={{ marginTop: 4 }} onClick={() => setOpen(false)}>Cancelar</button>
       </Sheet>
+      <CustomReminderSheet open={custom} onClose={() => setCustom(false)} date={date} time={time}
+        onAdd={(r) => { if (!present.has(reminderKey(r))) onChange([...reminders, r]); }} />
     </section>
   );
 }

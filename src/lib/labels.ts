@@ -22,19 +22,14 @@ export const nextTopicStatus = (s: TopicStatus): TopicStatus =>
 
 export function reminderLabel(r: Reminder): string {
   if (r.kind === 'before') {
-    if (r.minutes < 60) return `${r.minutes} min antes`;
-    if (r.minutes % 10080 === 0) {
-      const w = r.minutes / 10080;
-      return w === 1 ? '1 semana antes' : `${w} semanas antes`;
-    }
-    if (r.minutes % 1440 === 0) {
-      const d = r.minutes / 1440;
-      return d === 1 ? '1 día antes' : `${d} días antes`;
-    }
-    const h = r.minutes / 60;
-    return h === 1 ? '1 h antes' : `${h} h antes`;
+    const m = r.minutes;
+    if (m % 10080 === 0) { const w = m / 10080; return w === 1 ? '1 semana antes' : `${w} semanas antes`; }
+    if (m % 1440 === 0) { const d = m / 1440; return d === 1 ? '1 día antes' : `${d} días antes`; }
+    if (m % 60 === 0) { const h = m / 60; return `${h} h antes`; }
+    if (m < 60) return `${m} min antes`;
+    return `${Math.floor(m / 60)} h ${m % 60} min antes`;
   }
-  if (r.days === 0) return `El mismo día ${r.time}`;
-  if (r.days === 1) return `El día anterior ${r.time}`;
-  return `${r.days} días antes ${r.time}`;
+  if (r.days === 0) return `El mismo día a las ${r.time}`;
+  if (r.days === 1) return `El día anterior a las ${r.time}`;
+  return `${r.days} días antes a las ${r.time}`;
 }

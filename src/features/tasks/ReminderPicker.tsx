@@ -4,6 +4,8 @@ import { reminderLabel } from '../../lib/labels';
 import { uid } from '../../lib/id';
 import { Icon } from '../../components/Icon';
 import { Sheet } from '../../components/ui';
+import { CustomReminderSheet } from '../../components/CustomReminder';
+import { useState } from 'react';
 
 type RemNoId = { kind: 'before'; minutes: number } | { kind: 'dayAt'; days: number; time: string };
 
@@ -30,7 +32,8 @@ const toMin = (t: string) => { const [h, m] = t.split(':').map(Number); return h
 export const sortReminders = <T extends RemNoId | Reminder>(list: T[]) => [...list].sort((a, b) => remOrder(b) - remOrder(a));
 
 /** Chips conmutables: presets + los actuales. */
-export function ReminderChips({ value, onChange }: { value: Reminder[]; onChange: (v: Reminder[]) => void }) {
+export function ReminderChips({ value, onChange, date, time }: { value: Reminder[]; onChange: (v: Reminder[]) => void; date?: string; time?: string }) {
+  const [custom, setCustom] = useState(false);
   const active = new Set(value.map(remKey));
   const extra = value.filter((r) => !REMINDER_PRESETS.some((p) => remKey(p) === remKey(r)));
   const all: (RemNoId | Reminder)[] = sortReminders([...REMINDER_PRESETS, ...extra]);
@@ -49,6 +52,11 @@ export function ReminderChips({ value, onChange }: { value: Reminder[]; onChange
           </button>
         );
       })}
+      <button type="button" className="chip" onClick={() => setCustom(true)} style={{ color: 'var(--pink-text)', borderStyle: 'dashed' }}>
+        <Icon name="plus" size={14} stroke={2.4} />Personalizar
+      </button>
+      <CustomReminderSheet open={custom} onClose={() => setCustom(false)} date={date} time={time}
+        onAdd={(r) => { if (!active.has(remKey(r))) onChange([...value, r]); }} />
     </div>
   );
 }
@@ -57,6 +65,7 @@ export function ReminderChips({ value, onChange }: { value: Reminder[]; onChange
 export function ReminderPresetSheet({ open, onClose, exclude, onPick, title = 'Añadir aviso' }: {
   open: boolean; onClose: () => void; exclude: Reminder[]; onPick: (r: Reminder) => void; title?: string;
 }) {
+  const [custom, setCustom] = useState(false);
   const ex = new Set(exclude.map(remKey));
   const options = [...REMINDER_PRESETS, { kind: 'before', minutes: 10 } as RemNoId, { kind: 'before', minutes: 15 } as RemNoId, { kind: 'before', minutes: 30 } as RemNoId,
     { kind: 'before', minutes: 2880 } as RemNoId, { kind: 'dayAt', days: 0, time: '09:00' } as RemNoId, { kind: 'dayAt', days: 2, time: '10:00' } as RemNoId]
@@ -75,7 +84,12 @@ export function ReminderPresetSheet({ open, onClose, exclude, onPick, title = 'A
           ))}
         </div>
       )}
-      <button type="button" className="btn btn--block btn--ghost" style={{ marginTop: 12 }} onClick={onClose}>Cancelar</button>
+      <button type="button" className="btn btn--block" style={{ marginTop: 12 }} onClick={() => setCustom(true)}>
+        <Icon name="plus" size={18} stroke={2.2} />Personalizar un aviso
+      </button>
+      <button type="button" className="btn btn--block btn--ghost" style={{ marginTop: 4 }} onClick={onClose}>Cancelar</button>
+      <CustomReminderSheet open={custom} onClose={() => setCustom(false)}
+        onAdd={(r) => { if (!ex.has(remKey(r))) onPick(r); onClose(); }} />
     </Sheet>
   );
 }

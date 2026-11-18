@@ -11,6 +11,7 @@ import { reminderLabel } from '../../lib/labels';
 import { uid } from '../../lib/id';
 import { extractFromPdf } from '../../lib/pdf';
 import { REMINDER_PRESETS, reminderKey, withId } from './ReminderList';
+import { CustomReminderSheet } from '../../components/CustomReminder';
 import { useExamOrNull } from './common';
 import './study.css';
 
@@ -37,6 +38,7 @@ export default function ExamForm() {
   const [topics, setTopics] = useState<Topic[]>([]);
   const [newTopic, setNewTopic] = useState('');
   const [reminders, setReminders] = useState<Reminder[]>([]);
+  const [customRem, setCustomRem] = useState(false);
   const [plan, setPlan] = useState(!editing);
   const [daysBefore, setDaysBefore] = useState(6);
   const [planTime, setPlanTime] = useState('18:30');
@@ -374,7 +376,12 @@ export default function ExamForm() {
                   <Icon name="check" size={14} stroke={2.6} />{reminderLabel(r)}
                 </Chip>
               ))}
+              <button type="button" className="chip" onClick={() => setCustomRem(true)} style={{ color: 'var(--pink-text)', borderStyle: 'dashed' }}>
+                <Icon name="plus" size={14} stroke={2.4} />Personalizar
+              </button>
             </div>
+            <CustomReminderSheet open={customRem} onClose={() => setCustomRem(false)}
+              onAdd={(r) => { if (!selectedKeys.has(reminderKey(r))) setReminders((x) => [...x, r]); }} />
           </section>
 
           <button type="submit" className="btn btn--primary btn--block" style={{ marginTop: 32 }} disabled={!canSave}>

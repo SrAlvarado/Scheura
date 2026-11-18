@@ -6,7 +6,7 @@ import { registerSW } from 'virtual:pwa-register';
 let registration: ServiceWorkerRegistration | undefined;
 let updateSW: ((reload?: boolean) => Promise<void>) | undefined;
 
-export const APP_VERSION = '0.3.0';
+export const APP_VERSION = '0.3.1';
 
 export function initUpdates() {
   updateSW = registerSW({
