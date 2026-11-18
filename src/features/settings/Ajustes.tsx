@@ -5,7 +5,7 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { useSettings, useSubjects } from '../../db/hooks';
 import { clearAllData, loadDemoData } from '../../db/seed';
 import { todayISO } from '../../lib/dates';
-import { CellLink, ConfirmSheet, NavBar, Segmented, Switch, useToast } from '../../components/ui';
+import { CellLink, ConfirmSheet, NavBar, Segmented, Sheet, Switch, useToast } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { downloadBlob } from '../files/fileUtils';
 import { countsOf, exportBackup, readBackup, restoreBackup, type Backup } from './backup';
@@ -35,6 +35,7 @@ export default function Ajustes() {
   const [exporting, setExporting] = useState(false);
   const [pending, setPending] = useState<Backup | null>(null);
   const [confirm, setConfirm] = useState<'demo' | 'clear' | null>(null);
+  const [clearText, setClearText] = useState('');
 
   const reminderCount = settings.defaultReminders.examen.length;
 
@@ -208,17 +209,30 @@ export default function Ajustes() {
           toast.show({ text: 'Datos de ejemplo cargados' });
         }}
       />
-      <ConfirmSheet
-        open={confirm === 'clear'}
-        onClose={() => setConfirm(null)}
-        title="¿Borrar todos los datos?"
-        message="Se borrarán asignaturas, tareas, exámenes y archivos de este dispositivo. No se puede deshacer."
-        confirmLabel="Borrar todo"
-        onConfirm={async () => {
-          await clearAllData();
-          toast.show({ text: 'Datos borrados' });
-        }}
-      />
+      <Sheet open={confirm === 'clear'} onClose={() => { setConfirm(null); setClearText(''); }} title="¿Borrar todos los datos?">
+        <p className="muted small" style={{ marginTop: 0 }}>
+          Se borrarán asignaturas, tareas, exámenes y archivos <strong>de este dispositivo</strong>. No se puede deshacer.
+          {account ? ' Tus otros dispositivos y la copia sincronizada no se tocan.' : ' Si no tienes una copia exportada, los perderás para siempre.'}
+        </p>
+        <label className="stack" style={{ gap: 6 }}>
+          <span className="small">Para confirmar, escribe <strong>BORRAR</strong></span>
+          <input className="field" value={clearText} onChange={(e) => setClearText(e.target.value)} autoCapitalize="characters"
+            autoComplete="off" autoCorrect="off" spellCheck={false} placeholder="BORRAR" aria-label="Escribe BORRAR para confirmar" />
+        </label>
+        <div className="stack" style={{ marginTop: 16 }}>
+          <button type="button" className="btn btn--block" style={{ color: '#fff', background: 'var(--danger)', borderColor: 'var(--danger)' }}
+            disabled={clearText.trim().toUpperCase() !== 'BORRAR'}
+            onClick={async () => {
+              setConfirm(null);
+              setClearText('');
+              await clearAllData();
+              toast.show({ text: 'Datos borrados de este dispositivo' });
+            }}>
+            Borrar todo
+          </button>
+          <button type="button" className="btn btn--block btn--ghost" onClick={() => { setConfirm(null); setClearText(''); }}>Cancelar</button>
+        </div>
+      </Sheet>
       {toast.node}
     </div>
   );
