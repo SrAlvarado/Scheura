@@ -289,9 +289,11 @@ export default function TaskForm() {
                   <div className="cell cell--stack">
                     <span className="cell__label" id="tf-type-label">Tipo</span>
                     <div className="tf-segmented-wrap">
-                      <Segmented label="Tipo" value={type} onChange={changeType}
-                        options={TYPES.map((t) => ({ value: t, label: TYPE_LABEL[t] }))} />
+                      {/* Sin «Tarea»: si no se marca ningún tipo es una tarea normal; tocar el marcado lo desmarca. */}
+                      <Segmented label="Tipo" value={type} onChange={(v) => changeType(v === type ? 'tarea' : v)}
+                        options={TYPES.filter((t) => t !== 'tarea').map((t) => ({ value: t, label: TYPE_LABEL[t] }))} />
                     </div>
+                    {type === 'tarea' && <span className="xsmall muted">Sin tipo: se guarda como tarea normal.</span>}
 
                     {showExamHint && (
                       <div className="tf-hint">
