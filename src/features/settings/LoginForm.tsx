@@ -6,6 +6,7 @@ import { serverEnabled } from '../../lib/config';
 import { codeFromCredentials, normalizeUser } from '../../sync/crypto';
 import { enableSync, syncNow } from '../../sync/engine';
 import './sync.css';
+import { queueSurprise } from '../../components/Surprise';
 
 export default function LoginForm({ onDone, submitLabel = 'Entrar' }: { onDone: (r: { user: string; ok: boolean }) => void; submitLabel?: string }) {
   const [user, setUser] = useState('');
@@ -30,6 +31,7 @@ export default function LoginForm({ onDone, submitLabel = 'Entrar' }: { onDone: 
       await setMeta('sync.user', u);
       setPass('');
       const r = await syncNow();
+      await queueSurprise();
       onDone({ user: u, ok: r.ok });
     } catch (err) {
       setError(err instanceof Error ? err.message : 'No se pudo entrar');

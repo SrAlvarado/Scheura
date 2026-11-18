@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { HashRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom';
 import { Shell } from './components/Shell';
+import Surprise from './components/Surprise';
 import { getSettings } from './db/db';
 import { startReminderLoop } from './lib/notifications';
 import { startPushLoop } from './push/push';
@@ -44,6 +45,7 @@ export default function App() {
   return (
     <HashRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <FirstRun />
+      <Surprise />
       <Suspense fallback={null}>
         <Routes>
           <Route path="/bienvenida" element={<Bienvenida />} />
