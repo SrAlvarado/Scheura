@@ -71,6 +71,9 @@ export default function Calendario() {
   const dowLabels = Array.from({ length: 7 }, (_, i) => capitalize(fmt(addDaysISO(gridStart, i), desktop ? 'EEE' : 'EEEEE').replace('.', '')));
   const todayCol = today >= gridStart && today <= gridEnd ? grid.indexOf(today) % 7 : -1;
 
+  /** Flechas de arriba: día anterior / siguiente. */
+  const stepDay = (dir: 1 | -1) => setQuery({ dia: addDaysISO(dia, dir) });
+  /** Flechas pequeñas junto a Mes/Semana: mes o semana completa. */
   const step = (dir: 1 | -1) =>
     setQuery({ dia: view === 'mes' ? toISO(addMonths(fromISO(dia), dir)) : addDaysISO(dia, 7 * dir) });
 
@@ -88,9 +91,9 @@ export default function Calendario() {
         title={<>{capitalize(fmt(dia, 'MMMM'))} <span className="cal__year">{fmt(dia, 'yyyy')}</span></>}
         right={
           <>
-            <button type="button" className="iconbtn" aria-label={`${unit} anterior`} onClick={() => step(-1)}><Icon name="back" size={20} stroke={2.2} /></button>
+            <button type="button" className="iconbtn" aria-label="Día anterior" onClick={() => stepDay(-1)}><Icon name="back" size={20} stroke={2.2} /></button>
             <button type="button" className="cal__today" onClick={() => setQuery({ dia: today })} disabled={dia === today}>Hoy</button>
-            <button type="button" className="iconbtn" aria-label={`${unit} siguiente`} onClick={() => step(1)}><Icon name="chevron" size={20} stroke={2.2} /></button>
+            <button type="button" className="iconbtn" aria-label="Día siguiente" onClick={() => stepDay(1)}><Icon name="chevron" size={20} stroke={2.2} /></button>
           </>
         }
       />
@@ -101,6 +104,10 @@ export default function Calendario() {
             <div className="cal__seg">
               <Segmented label="Vista" value={view} onChange={(v) => setQuery({ vista: v })}
                 options={[{ value: 'mes', label: 'Mes' }, { value: 'semana', label: 'Semana' }]} />
+            </div>
+            <div className="cal__range">
+              <button type="button" className="iconbtn" aria-label={`${unit} anterior`} onClick={() => step(-1)}><Icon name="back" size={18} stroke={2.2} /></button>
+              <button type="button" className="iconbtn" aria-label={`${unit} siguiente`} onClick={() => step(1)}><Icon name="chevron" size={18} stroke={2.2} /></button>
             </div>
             <button type="button" className="cal__filterbtn" onClick={() => setFilterOpen(true)} aria-haspopup="dialog"
               aria-label={nActive ? `Filtros, ${nActive} activos` : 'Filtros'}>

@@ -1,10 +1,10 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
-import { registerSW } from 'virtual:pwa-register';
+import { initUpdates } from './lib/update';
 import App from './App';
 import './styles/global.css';
 
-registerSW({ immediate: true });
+initUpdates();
 
 // Android/Chrome: guardar el aviso de instalación para mostrar nuestro botón "Instalar" en Bienvenida.
 window.addEventListener('beforeinstallprompt', (e) => {

@@ -10,6 +10,7 @@ import { Icon } from '../../components/Icon';
 import { downloadBlob } from '../files/fileUtils';
 import { countsOf, exportBackup, readBackup, restoreBackup, type Backup } from './backup';
 import './settings.css';
+import { APP_VERSION, checkForUpdate } from '../../lib/update';
 
 const DURATIONS = [15, 30, 45, 60, 90];
 
@@ -17,6 +18,18 @@ export default function Ajustes() {
   const account = useLiveQuery(async () => (await db.meta.get('sync.user'))?.value as string | undefined, []);
   const settings = useSettings();
   const subjects = useSubjects();
+  const [checking, setChecking] = useState(false);
+  const onCheckUpdate = async () => {
+    setChecking(true);
+    try {
+      const r = await checkForUpdate();
+      toast.show({ text: r === 'updating' ? 'Actualizando…' : r === 'latest' ? `Ya tienes la última versión (${APP_VERSION})` : 'No se pudo comprobar. Cierra y vuelve a abrir la app.' });
+    } catch {
+      toast.show({ text: 'Sin conexión. Inténtalo más tarde.' });
+    } finally {
+      setChecking(false);
+    }
+  };
   const toast = useToast();
   const importRef = useRef<HTMLInputElement>(null);
   const [exporting, setExporting] = useState(false);
@@ -161,9 +174,13 @@ export default function Ajustes() {
 
         <div className="group settings-about">
           <CellLink to="/bienvenida" label="Instalar app" value="Pantalla de inicio" />
+          <button type="button" className="cell" onClick={onCheckUpdate} disabled={checking}>
+            <span className="cell__label">Buscar actualizaciones</span>
+            <span className="cell__value">{checking ? 'Buscando…' : ''}</span>
+          </button>
           <div className="cell">
             <span className="cell__label">Acerca de Scheura</span>
-            <span className="cell__value">versión 0.2.0</span>
+            <span className="cell__value">versión {APP_VERSION}</span>
           </div>
         </div>
 

@@ -70,7 +70,16 @@ export default function Dia() {
 
   return (
     <main className="page page--pushed dia">
-      <NavBar back="Calendario" title={longDay(date)} />
+      <NavBar back="Calendario" backTo={`/calendario?dia=${date}`} title={longDay(date)} right={
+        <>
+          <Link to={`/dia/${addDaysISO(date, -1)}`} replace className="iconbtn" aria-label="Día anterior" style={{ color: 'var(--pink-text)' }}>
+            <Icon name="back" size={20} stroke={2.2} />
+          </Link>
+          <Link to={`/dia/${addDaysISO(date, 1)}`} replace className="iconbtn" aria-label="Día siguiente" style={{ color: 'var(--pink-text)' }}>
+            <Icon name="chevron" size={20} stroke={2.2} />
+          </Link>
+        </>
+      } />
 
       <header className="dia__head">
         <span className="eyebrow">{capitalize(relDays(date))} · Semana {getISOWeek(parseISO(date))}</span>
