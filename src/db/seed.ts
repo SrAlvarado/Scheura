@@ -56,6 +56,8 @@ export async function loadDemoData() {
   const monday = addDaysISO(today, -weekdayMon0(today));
   const tasks: Task[] = [
     work, ...steps,
+    base({ title: 'Cumple de Ane', type: 'evento', category: 'cumple', date: d(3), repeat: { freq: 'yearly', days: [] }, reminders: [{ id: uid(), kind: 'dayAt', days: 1, time: '20:00' }], notes: 'Le encantan los tulipanes' }),
+    base({ title: 'Dentista', type: 'evento', category: 'medico', date: d(1), time: '17:30', endTime: '18:00', durationMin: 30, location: 'Clínica Dental Sol' }),
     base({ title: 'Clase de Matemáticas', type: 'clase', subjectId: mat.id, date: monday, time: '09:00', durationMin: 60, repeat: { freq: 'weekly', days: [0, 2] }, reminders: [{ id: uid(), kind: 'before', minutes: 10 }] }),
     base({ title: 'Clase de Inglés', type: 'clase', subjectId: ing.id, date: monday, time: '12:00', durationMin: 60, repeat: { freq: 'weekly', days: [1, 3] }, reminders: [{ id: uid(), kind: 'before', minutes: 10 }] }),
     base({ title: 'Leer artículo', subjectId: ing.id, date: today, time: '11:30', durationMin: 30, done: true }),

@@ -5,21 +5,16 @@ import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../../db/db';
 import { deleteTask, moveTask, setTaskDone, updateTask } from '../../db/repo';
 import { useSteps, useSubjectMap } from '../../db/hooks';
-import type { Task } from '../../db/types';
 import { ConfirmSheet, Empty, NavBar, Sheet, SubjectChip, useToast } from '../../components/ui';
 import { Icon } from '../../components/Icon';
 import { PRIORITY_LABEL, TYPE_LABEL } from '../../lib/labels';
-import { WEEKDAYS, addDaysISO, fmtDuration, longDay, todayISO } from '../../lib/dates';
+import { addDaysISO, fmtDuration, longDay, todayISO } from '../../lib/dates';
 import { workProgress, pct } from '../../lib/progress';
 import Attachments from '../files/Attachments';
 import { remLabel, sortReminders } from './ReminderPicker';
+import { repeatLabel } from '../../lib/events';
 import './tasks.css';
 
-function repeatLabel(t: Task): string {
-  if (!t.repeat || t.repeat.freq === 'none' || !t.repeat.days.length) return 'No se repite';
-  const days = [...t.repeat.days].sort().map((d) => WEEKDAYS[d].toLowerCase()).join(', ');
-  return `Cada semana: ${days}${t.repeat.until ? ` · hasta ${longDay(t.repeat.until).toLowerCase()}` : ''}`;
-}
 
 export default function TaskDetail() {
   const { id } = useParams();
@@ -52,6 +47,7 @@ export default function TaskDetail() {
     );
   }
   if (task.type === 'entrega' && !task.parentId) return <Navigate to={`/trabajo/${task.id}`} replace />;
+  if (task.type === 'evento') return <Navigate to={`/evento/${task.id}${params.get('fecha') ? `?fecha=${params.get('fecha')}` : ''}`} replace />;
 
   const repeating = !!task.repeat && task.repeat.freq !== 'none';
   const qFecha = params.get('fecha');

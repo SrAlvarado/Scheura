@@ -4,6 +4,8 @@ import type { AgendaItem, Exam, Task, TaskType, Topic } from './types';
 import { uid } from '../lib/id';
 import { addDaysISO, todayISO, weekdayMon0 } from '../lib/dates';
 import { examProgress, workProgress } from '../lib/progress';
+import { isNotTodo } from '../lib/labels';
+import { repeatHits } from '../lib/events';
 
 // ---------- Tareas ----------
 
@@ -15,7 +17,7 @@ export async function createTask(data: Partial<Task> & { title: string }): Promi
     type,
     priority: 'media',
     done: false,
-    reminders: data.reminders ?? settings.defaultReminders[type].map((r) => ({ ...r, id: uid() })),
+    reminders: data.reminders ?? (settings.defaultReminders[type] ?? []).map((r) => ({ ...r, id: uid() })),
     createdAt: Date.now(),
     ...data,
   };
@@ -66,11 +68,11 @@ export async function moveTask(id: string, toDate: string, fromDate?: string): P
   return id;
 }
 
-/** Tareas atrasadas: con fecha < hoy, no hechas, no repetidas, no clases. */
+/** Tareas atrasadas: con fecha < hoy, no hechas, no repetidas, ni clases ni eventos. */
 export async function overdueTasks(): Promise<Task[]> {
   const today = todayISO();
   const all = await db.tasks.where('date').below(today).toArray();
-  return all.filter((t) => !t.done && (!t.repeat || t.repeat.freq === 'none') && t.type !== 'clase');
+  return all.filter((t) => !t.done && (!t.repeat || t.repeat.freq === 'none') && !isNotTodo(t.type));
 }
 
 // ---------- Exámenes ----------
@@ -152,7 +154,7 @@ function occursOn(t: Task, date: string): boolean {
   if (!t.date || date < t.date) return false;
   if (t.repeat.until && date > t.repeat.until) return false;
   if (t.skipDates?.includes(date)) return false;
-  return t.repeat.days.includes(weekdayMon0(date));
+  return repeatHits(t.repeat, t.date, date, weekdayMon0(date));
 }
 
 /**
@@ -210,6 +212,7 @@ function toItem(t: Task, date: string, repeating: boolean, steps: Map<string, Ta
     repeating,
     parentId: t.parentId,
     progress: t.type === 'entrega' && !t.parentId ? workProgress(t, steps.get(t.id) ?? []) : undefined,
+    ...(t.type === 'evento' ? { category: t.category, location: t.location, done: false } : {}),
   };
 }
 

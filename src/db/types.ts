@@ -15,7 +15,10 @@ export interface Subject {
   createdAt: number;
 }
 
-export type TaskType = 'tarea' | 'examen' | 'entrega' | 'estudio' | 'clase';
+export type TaskType = 'tarea' | 'examen' | 'entrega' | 'estudio' | 'clase' | 'evento';
+
+/** Categoría de un evento (type 'evento'): cumpleaños, cita, médico… */
+export type EventCategory = 'cumple' | 'cita' | 'medico' | 'quedada' | 'viaje' | 'deporte' | 'otro';
 export type Priority = 'baja' | 'media' | 'alta';
 
 /**
@@ -28,8 +31,9 @@ export type Reminder =
   | { id: string; kind: 'dayAt'; days: number; time: string };
 
 export interface Repeat {
-  freq: 'none' | 'weekly';
-  /** 0 = lunes … 6 = domingo */
+  /** monthly = mismo día de cada mes; yearly = mismo día cada año (cumpleaños) */
+  freq: 'none' | 'weekly' | 'monthly' | 'yearly';
+  /** 0 = lunes … 6 = domingo (solo weekly) */
   days: number[];
   /** Fecha límite opcional 'yyyy-MM-dd' */
   until?: string;
@@ -63,6 +67,10 @@ export interface Task {
   examId?: string;
   topicId?: string;
   notes?: string;
+  /** Solo eventos: categoría, hora de fin ('HH:mm') y lugar */
+  category?: EventCategory;
+  endTime?: string;
+  location?: string;
   createdAt: number;
 }
 
@@ -148,6 +156,9 @@ export interface AgendaItem {
   parentId?: string;
   /** progreso 0..1 para exámenes y trabajos */
   progress?: number;
+  /** Solo eventos */
+  category?: EventCategory;
+  location?: string;
 }
 
 /** Registro de borrado para propagar eliminaciones al sincronizar. key = `${table}:${id}` */

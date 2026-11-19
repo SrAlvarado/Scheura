@@ -1,4 +1,4 @@
-import { addDays, differenceInCalendarDays, format, parseISO, startOfWeek } from 'date-fns';
+import { addDays, differenceInCalendarDays, format, getDaysInMonth, parseISO, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 /** 'yyyy-MM-dd' de hoy en hora local */
@@ -6,6 +6,9 @@ export const todayISO = () => format(new Date(), 'yyyy-MM-dd');
 export const toISO = (d: Date) => format(d, 'yyyy-MM-dd');
 export const fromISO = (s: string) => parseISO(s);
 export const addDaysISO = (s: string, n: number) => toISO(addDays(parseISO(s), n));
+
+/** Días del mes de una fecha 'yyyy-MM-dd' */
+export const daysInMonthOf = (s: string) => getDaysInMonth(parseISO(s));
 
 /** 0 = lunes … 6 = domingo */
 export const weekdayMon0 = (s: string) => (parseISO(s).getDay() + 6) % 7;

@@ -278,3 +278,8 @@ textarea.field { min-height: 96px; resize: vertical; }
 @keyframes route-from-left { from { opacity: 0; transform: translateX(-24px); } }
 @keyframes route-push { from { opacity: 0; transform: translateY(12px); } }
 @media (prefers-reduced-motion: reduce) { .route { animation: route-fade .15s both; } }
+
+/* Selector «Tarea · Evento · Examen» en los formularios de creación */
+.newkind { margin: 0 0 14px; }
+.newkind .segmented { width: 100%; }
+.newkind .segmented button { flex: 1; }

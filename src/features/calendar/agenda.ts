@@ -3,15 +3,16 @@ import { useEffect, useMemo, useState } from 'react';
 import type { AgendaItem, Exam, Subject, Task, TaskType } from '../../db/types';
 import { byImportance, byTime } from '../../db/repo';
 import { useAllExams, useAllTasks } from '../../db/hooks';
-import { SUBJECT_COLORS } from '../../lib/colors';
 import { fmtDuration } from '../../lib/dates';
-import { PRIORITY_LABEL, TYPE_LABEL } from '../../lib/labels';
+import { PRIORITY_LABEL, TYPE_LABEL, isNotTodo } from '../../lib/labels';
+import { categoryInfo, eventMeta, itemColors } from '../../lib/events';
 
 export const PINK = '#D81B60';
 
 /** Ruta de detalle de un elemento de agenda. */
 export function itemHref(it: AgendaItem): string {
   if (it.kind === 'exam') return `/examen/${it.id}`;
+  if (it.type === 'evento') return `/evento/${it.id}${it.repeating ? `?fecha=${it.date}` : ''}`;
   if (it.type === 'entrega' && !it.parentId) return `/trabajo/${it.id}`;
   return `/tarea/${it.id}`;
 }
@@ -23,9 +24,12 @@ export const keyLabel = (it: AgendaItem) => (it.kind === 'exam' ? 'EXAMEN' : 'EN
 /** Abierto e importante: alta prioridad, examen o entrega. */
 export const isHigh = (it: AgendaItem) => !it.done && (it.priority === 'alta' || it.kind === 'exam' || it.type === 'entrega');
 
-/** Atrasada: tarea no hecha de un día pasado (las clases no cuentan). */
+/** Atrasada: tarea no hecha de un día pasado (clases y eventos no cuentan). */
 export const isLate = (it: AgendaItem, today: string) =>
-  it.kind === 'task' && !it.done && it.date < today && it.type !== 'clase';
+  it.kind === 'task' && !it.done && it.date < today && !isNotTodo(it.type);
+
+/** Cosa por hacer pendiente (no exámenes, clases ni eventos). */
+export const isPendingTodo = (it: AgendaItem) => it.kind === 'task' && !it.done && !isNotTodo(it.type);
 
 export type SortMode = 'hora' | 'importancia';
 export const sortItems = (items: AgendaItem[], mode: SortMode) => [...items].sort(mode === 'hora' ? byTime : byImportance);
@@ -40,8 +44,7 @@ export function dayDots(items: AgendaItem[], subjects: Map<string, Subject>, max
   const out: string[] = [];
   const sorted = [...items].sort((a, b) => Number(b.type === 'examen' || b.type === 'entrega') - Number(a.type === 'examen' || a.type === 'entrega'));
   for (const it of sorted) {
-    const s = it.subjectId ? subjects.get(it.subjectId) : undefined;
-    const c = it.type === 'examen' || it.type === 'entrega' ? PINK : s ? SUBJECT_COLORS[s.color].dot : '#BDBDBD';
+    const c = it.type === 'examen' || it.type === 'entrega' ? PINK : itemColors(it, subjects).dot;
     if (!out.includes(c)) out.push(c);
     if (out.length >= max) break;
   }
@@ -87,11 +90,13 @@ export function typeOrStep(it: AgendaItem, ctx: Context): string {
     if (info && idx) return `Paso ${idx} de ${info.total}`;
     return 'Paso';
   }
+  if (it.type === 'evento') return categoryInfo(it.category).label;
   return TYPE_LABEL[it.type];
 }
 
 /** asignatura · tipo/paso · duración (· Alta) */
 export function itemMeta(it: AgendaItem, ctx: Context, subjects: Map<string, Subject>, withSubject = true): string {
+  if (it.type === 'evento') return [eventMeta(it), fmtDuration(it.durationMin) || undefined].filter(Boolean).join(' · ');
   const s = it.subjectId ? subjects.get(it.subjectId) : undefined;
   const parts = [withSubject ? s?.name : undefined, typeOrStep(it, ctx), fmtDuration(it.durationMin) || undefined];
   if (it.priority === 'alta' && it.kind === 'task' && it.type !== 'entrega') parts.push(PRIORITY_LABEL.alta);

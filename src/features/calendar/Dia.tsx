@@ -6,12 +6,12 @@ import { db } from '../../db/db';
 import { useAgenda, useSettings, useSubjectMap } from '../../db/hooks';
 import { moveTask, setTaskDone } from '../../db/repo';
 import { addDaysISO, capitalize, fmtDuration, longDay, relDays, todayISO } from '../../lib/dates';
-import { PRIORITY_LABEL } from '../../lib/labels';
+import { PRIORITY_LABEL, isNotTodo } from '../../lib/labels';
 import { pct } from '../../lib/progress';
 import { Icon } from '../../components/Icon';
 import { Empty, NavBar, Progress, Segmented, Sheet, useToast } from '../../components/ui';
-import { type Context, isKey, isLate, itemHref, progressLabel, type SortMode, sortItems, typeOrStep, useAgendaContext } from './agenda';
-import { MiniSubject } from './parts';
+import { type Context, isKey, isLate, isPendingTodo, itemHref, progressLabel, type SortMode, sortItems, typeOrStep, useAgendaContext } from './agenda';
+import { EventTag, MiniSubject } from './parts';
 import './calendar.css';
 
 export default function Dia() {
@@ -37,10 +37,10 @@ export default function Dia() {
   }
 
   const list = sortItems(items ?? [], sort);
-  const pending = list.filter((i) => i.kind === 'task' && !i.done).length;
+  const pending = list.filter(isPendingTodo).length;
   const nExams = list.filter((i) => i.kind === 'exam').length;
   const nWorks = list.filter((i) => i.type === 'entrega' && !i.parentId).length;
-  const totalMin = list.reduce((a, i) => a + (i.kind === 'task' && i.type !== 'clase' ? i.durationMin ?? 0 : 0), 0);
+  const totalMin = list.reduce((a, i) => a + (i.kind === 'task' && !isNotTodo(i.type) ? i.durationMin ?? 0 : 0), 0);
   const summary = [
     nExams ? `${nExams} ${nExams === 1 ? 'examen' : 'exámenes'}` : '',
     nWorks ? `${nWorks} ${nWorks === 1 ? 'entrega' : 'entregas'}` : '',
@@ -135,10 +135,11 @@ function DiaRow({ it, subjects, ctx, today, onMove }: { it: AgendaItem; subjects
           {late && <span className="arow__tag">ATRASADA</span>}
         </Link>
         <div className="drow__meta">
-          <MiniSubject subject={s} />
-          <span>{typeOrStep(it, ctx)}</span>
+          {it.type === 'evento' ? <EventTag it={it} /> : <MiniSubject subject={s} />}
+          {it.type !== 'evento' && <span>{typeOrStep(it, ctx)}</span>}
+          {it.location ? <span>{it.location}</span> : null}
           {it.durationMin ? <span>{fmtDuration(it.durationMin)}</span> : null}
-          <span className={`drow__pri drow__pri--${it.priority}`}><i aria-hidden="true" />{PRIORITY_LABEL[it.priority]}</span>
+          {it.type !== 'evento' && <span className={`drow__pri drow__pri--${it.priority}`}><i aria-hidden="true" />{PRIORITY_LABEL[it.priority]}</span>}
         </div>
         {isKey(it) && (
           <div className="drow__prog">
@@ -146,7 +147,7 @@ function DiaRow({ it, subjects, ctx, today, onMove }: { it: AgendaItem; subjects
             <span className="xsmall muted"><strong className="pink">{pct(it.progress ?? 0)}</strong> · {progressLabel(it, ctx)}</span>
           </div>
         )}
-        {it.kind === 'task' && (
+        {it.kind === 'task' && it.type !== 'evento' && (
           <div className="drow__actions">
             <button type="button" className={`btn btn--sm${it.done ? ' btn--primary' : ''}`} aria-pressed={it.done}
               onClick={() => setTaskDone(it.id, !it.done, it.repeating ? it.date : undefined)}>

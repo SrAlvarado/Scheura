@@ -27,7 +27,7 @@ function useSubjectStats(): Map<string, Stats> | undefined {
       if (!t.subjectId) continue;
       const s = get(t.subjectId);
       s.refs++;
-      if (!t.done && t.type !== 'clase' && !(t.repeat && t.repeat.freq !== 'none')) s.pending++;
+      if (!t.done && t.type !== 'clase' && t.type !== 'evento' && !(t.repeat && t.repeat.freq !== 'none')) s.pending++;
     }
     for (const e of exams) {
       if (!e.subjectId) continue;

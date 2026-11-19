@@ -6,8 +6,12 @@ export const TYPE_LABEL: Record<TaskType, string> = {
   entrega: 'Entrega',
   estudio: 'Estudio',
   clase: 'Clase',
+  evento: 'Evento',
 };
-export const TYPES: TaskType[] = ['tarea', 'examen', 'entrega', 'estudio', 'clase'];
+export const TYPES: TaskType[] = ['tarea', 'examen', 'entrega', 'estudio', 'clase', 'evento'];
+
+/** Tipos que no son «cosas por hacer»: no se completan, no se atrasan ni cuentan como pendientes. */
+export const isNotTodo = (type: TaskType) => type === 'clase' || type === 'evento';
 
 export const PRIORITY_LABEL: Record<Priority, string> = { baja: 'Baja', media: 'Media', alta: 'Alta' };
 export const PRIORITY_RANK: Record<Priority, number> = { alta: 0, media: 1, baja: 2 };

@@ -1,5 +1,5 @@
 import { useLiveQuery } from 'dexie-react-hooks';
-import { db, DEFAULT_SETTINGS } from './db';
+import { db, DEFAULT_SETTINGS, withDefaults } from './db';
 import { buildAgenda } from './repo';
 import type { AgendaItem, Attachment, Exam, Settings, Subject, Task } from './types';
 
@@ -45,7 +45,7 @@ export const useAttachments = (ownerId?: string): Attachment[] =>
 export const useAttachment = (id?: string) => useLiveQuery(() => (id ? db.attachments.get(id) : undefined), [id]);
 
 export function useSettings(): Settings {
-  return useLiveQuery(async () => ({ ...DEFAULT_SETTINGS, ...(await db.settings.get('app')) }), []) ?? DEFAULT_SETTINGS;
+  return useLiveQuery(async () => withDefaults(await db.settings.get('app')), []) ?? DEFAULT_SETTINGS;
 }
 
 /** Agenda expandida para [from, to] (incluye repeticiones y exámenes). undefined mientras carga. */

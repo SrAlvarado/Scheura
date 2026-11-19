@@ -1,4 +1,5 @@
 import { useMemo } from 'react';
+import { categoryInfo } from '../../lib/events';
 import { Link, useNavigate } from 'react-router-dom';
 import { useLiveQuery } from 'dexie-react-hooks';
 import type { AgendaItem, Subject } from '../../db/types';
@@ -24,7 +25,7 @@ export default function Hoy() {
 
   const byDate = useMemo(() => groupByDate(range ?? []), [range]);
   const todayAll = byDate.get(today) ?? [];
-  const tasksToday = todayAll.filter((i) => i.kind === 'task');
+  const tasksToday = todayAll.filter((i) => i.kind === 'task' && i.type !== 'evento');
   const doneCount = tasksToday.filter((i) => i.done).length;
   const visible = settings.hideDone ? todayAll.filter((i) => !i.done) : todayAll;
   const timed = sortItems(visible.filter((i) => i.time), settings.daySort);
@@ -127,7 +128,9 @@ function TimelineRow({ it, ctx, subjects }: { it: AgendaItem; ctx: Context; subj
     <div className="timeline-row">
       <span className="timeline-row__time">{it.time ?? ''}</span>
       <div className="timeline-row__rail">
-        {it.kind === 'exam' ? (
+        {it.type === 'evento' ? (
+          <span className="hoy__emoji" aria-hidden="true">{categoryInfo(it.category).emoji}</span>
+        ) : it.kind === 'exam' ? (
           <span className={cls} aria-hidden="true" />
         ) : (
           <button type="button" className={`${cls} hoy__dot`} aria-pressed={it.done}

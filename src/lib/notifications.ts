@@ -6,6 +6,7 @@
 //   la última hora). En iPhone la app debe estar añadida a la pantalla de inicio (iOS 16.4+).
 import { db, getMeta, getSettings } from '../db/db';
 import { buildAgenda } from '../db/repo';
+import { categoryInfo } from './events';
 import type { Exam, Reminder, Task } from '../db/types';
 import { addDaysISO, toDateTime, todayISO } from './dates';
 import { reminderLabel } from './labels';
@@ -55,8 +56,8 @@ export async function upcomingReminders(days = 14): Promise<UpcomingReminder[]> 
         key: `${item.key}|${r.id}`,
         at,
         title: item.title,
-        body: `${item.type === 'examen' ? 'Examen' : item.type === 'entrega' ? 'Entrega' : 'Recordatorio'} · ${reminderLabel(r)}${item.time ? ` · ${item.time}` : ''}`,
-        url: item.kind === 'exam' ? `#/examen/${item.id}` : `#/tarea/${item.id}`,
+        body: `${item.type === 'examen' ? 'Examen' : item.type === 'entrega' ? 'Entrega' : item.type === 'evento' ? categoryInfo(item.category).label : 'Recordatorio'} · ${reminderLabel(r)}${item.time ? ` · ${item.time}` : ''}`,
+        url: item.kind === 'exam' ? `#/examen/${item.id}` : item.type === 'evento' ? `#/evento/${item.id}` : `#/tarea/${item.id}`,
       });
     }
   }

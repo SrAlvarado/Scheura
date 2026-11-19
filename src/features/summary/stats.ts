@@ -32,7 +32,7 @@ export function weekNumber(range: WeekRange): number {
 }
 
 /** Cuenta en las estadísticas: todo menos exámenes y clases. */
-export const isCountable = (it: AgendaItem) => it.kind !== 'exam' && it.type !== 'examen' && it.type !== 'clase';
+export const isCountable = (it: AgendaItem) => it.kind !== 'exam' && it.type !== 'examen' && it.type !== 'clase' && it.type !== 'evento';
 
 export interface SubjectStat {
   /** undefined = sin asignatura */
@@ -95,6 +95,7 @@ export function computeStats(items: AgendaItem[], today: string = toISO(new Date
 /** Ruta de detalle de un elemento de agenda. */
 export function itemHref(it: Pick<AgendaItem, 'kind' | 'id' | 'type' | 'parentId'>): string {
   if (it.kind === 'exam') return `/examen/${it.id}`;
+  if (it.type === 'evento') return `/evento/${it.id}`;
   if (it.type === 'entrega' && !it.parentId) return `/trabajo/${it.id}`;
   return `/tarea/${it.id}`;
 }

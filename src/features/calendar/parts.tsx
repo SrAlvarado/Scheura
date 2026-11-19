@@ -2,7 +2,8 @@
 import { Link } from 'react-router-dom';
 import type { AgendaItem, Subject } from '../../db/types';
 import { SUBJECT_COLORS } from '../../lib/colors';
-import { capitalize, fmt, relDays } from '../../lib/dates';
+import { capitalize, fmt, fmtDuration, relDays } from '../../lib/dates';
+import { categoryInfo } from '../../lib/events';
 import { pct } from '../../lib/progress';
 import { Icon } from '../../components/Icon';
 import { Progress } from '../../components/ui';
@@ -14,6 +15,13 @@ export function MiniSubject({ subject }: { subject?: Subject }) {
   if (!subject) return null;
   const c = SUBJECT_COLORS[subject.color];
   return <span className="mini-subject" style={{ background: c.bg, color: c.fg }}>{subject.name}</span>;
+}
+
+/** Etiqueta de evento: emoji + categoría con su color. */
+export function EventTag({ it }: { it: Pick<AgendaItem, 'category'> }) {
+  const cat = categoryInfo(it.category);
+  const c = SUBJECT_COLORS[cat.color];
+  return <span className="mini-subject" style={{ background: c.bg, color: c.fg }}><span aria-hidden="true">{cat.emoji}</span> {cat.label}</span>;
 }
 
 /** Fila de lista del calendario: hora · título · asignatura + meta · EXAMEN/ENTREGA/ATRASADA. */
@@ -29,8 +37,17 @@ export function AgendaRow({ it, subjects, ctx, today, compact }: { it: AgendaIte
           {it.repeating && <span className="arow__rep" aria-label="Se repite"><Icon name="repeat" size={13} stroke={2} /></span>}
         </span>
         <span className="arow__meta">
-          <MiniSubject subject={s} />
-          <span>{itemMeta(it, ctx, subjects, false)}</span>
+          {it.type === 'evento' ? (
+            <>
+              <EventTag it={it} />
+              <span>{[it.location, fmtDuration(it.durationMin)].filter(Boolean).join(' · ')}</span>
+            </>
+          ) : (
+            <>
+              <MiniSubject subject={s} />
+              <span>{itemMeta(it, ctx, subjects, false)}</span>
+            </>
+          )}
         </span>
       </span>
       {isKey(it) && !it.done ? <span className="arow__tag">{keyLabel(it)}</span> : late ? <span className="arow__tag">ATRASADA</span> : null}

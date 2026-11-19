@@ -12,6 +12,8 @@ const Hoy = lazy(() => import('./features/home/Hoy'));
 const Atrasadas = lazy(() => import('./features/tasks/Atrasadas'));
 const TaskForm = lazy(() => import('./features/tasks/TaskForm'));
 const TaskDetail = lazy(() => import('./features/tasks/TaskDetail'));
+const EventForm = lazy(() => import('./features/events/EventForm'));
+const EventDetail = lazy(() => import('./features/events/EventDetail'));
 const Avisos = lazy(() => import('./features/tasks/Avisos'));
 const Calendario = lazy(() => import('./features/calendar/Calendario'));
 const Dia = lazy(() => import('./features/calendar/Dia'));
@@ -55,6 +57,9 @@ export default function App() {
             <Route path="/tarea/nueva" element={<TaskForm />} />
             <Route path="/tarea/:id" element={<TaskDetail />} />
             <Route path="/tarea/:id/editar" element={<TaskForm />} />
+            <Route path="/evento/nuevo" element={<EventForm />} />
+            <Route path="/evento/:id" element={<EventDetail />} />
+            <Route path="/evento/:id/editar" element={<EventForm />} />
             <Route path="/calendario" element={<Calendario />} />
             <Route path="/dia/:date" element={<Dia />} />
             <Route path="/estudio" element={<Estudio />} />

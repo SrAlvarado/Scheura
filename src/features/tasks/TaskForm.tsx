@@ -11,6 +11,7 @@ import { TYPES, TYPE_LABEL } from '../../lib/labels';
 import { WEEKDAYS, WEEKDAYS_SHORT, addDaysISO, todayISO, weekdayMon0 } from '../../lib/dates';
 import { uid } from '../../lib/id';
 import { ReminderChips, withId } from './ReminderPicker';
+import { NewKindSwitch } from '../../components/NewKind';
 import './tasks.css';
 
 interface StepDraft { key: string; id?: string; title: string; date: string }
@@ -22,7 +23,7 @@ const DURATIONS: { value: number; label: string }[] = [
   { value: 60, label: '1 h' },
   { value: 120, label: '2 h' },
 ];
-const isTaskType = (v: string | null): v is TaskType => !!v && (TYPES as string[]).includes(v);
+const isTaskType = (v: string | null): v is TaskType => !!v && v !== 'evento' && (TYPES as string[]).includes(v);
 
 export default function TaskForm() {
   const { id } = useParams();
@@ -43,7 +44,7 @@ export default function TaskForm() {
   const [parentTitle, setParentTitle] = useState<string>('');
   const isStep = !!parentId;
 
-  const [title, setTitle] = useState('');
+  const [title, setTitle] = useState(params.get('titulo') ?? '');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState(qFecha && /^\d{4}-\d{2}-\d{2}$/.test(qFecha) ? qFecha : todayISO());
   const [time, setTime] = useState('');
@@ -101,7 +102,7 @@ export default function TaskForm() {
         }
       } else {
         const initialType: TaskType = qPadre ? 'entrega' : isTaskType(qTipo) ? qTipo : 'tarea';
-        setReminders(settings.defaultReminders[initialType].map(withId));
+        setReminders((settings.defaultReminders[initialType] ?? []).map(withId));
         if (qPadre) {
           const p = await db.tasks.get(qPadre);
           if (alive && p) {
@@ -118,7 +119,7 @@ export default function TaskForm() {
 
   const changeType = (t: TaskType) => {
     setType(t);
-    if (!remTouched && defaults) setReminders(defaults[t].map(withId));
+    if (!remTouched && defaults) setReminders((defaults[t] ?? []).map(withId));
   };
   const changeReminders = (r: Reminder[]) => { setReminders(r); setRemTouched(true); };
 
@@ -245,6 +246,7 @@ export default function TaskForm() {
 
       {!loaded ? null : (
         <form onSubmit={(e) => { e.preventDefault(); save(); }}>
+          {!editing && !isStep && <NewKindSwitch current="tarea" date={date} title={title} />}
           {isStep && parentTitle && <p className="muted small" style={{ margin: '0 0 4px' }}>Paso de «{parentTitle}»</p>}
           <div className="tf-head">
             <label htmlFor="tf-title" className="sr-only">Nombre de la tarea</label>
@@ -291,7 +293,7 @@ export default function TaskForm() {
                     <div className="tf-segmented-wrap">
                       {/* Sin «Tarea»: si no se marca ningún tipo es una tarea normal; tocar el marcado lo desmarca. */}
                       <Segmented label="Tipo" value={type} onChange={(v) => changeType(v === type ? 'tarea' : v)}
-                        options={TYPES.filter((t) => t !== 'tarea').map((t) => ({ value: t, label: TYPE_LABEL[t] }))} />
+                        options={TYPES.filter((t) => t !== 'tarea' && t !== 'evento').map((t) => ({ value: t, label: TYPE_LABEL[t] }))} />
                     </div>
                     {type === 'tarea' && <span className="xsmall muted">Sin tipo: se guarda como tarea normal.</span>}
 

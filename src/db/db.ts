@@ -124,12 +124,18 @@ export const DEFAULT_SETTINGS: Settings = {
     tarea: [{ id: uid(), kind: 'before', minutes: 60 }],
     estudio: [{ id: uid(), kind: 'before', minutes: 15 }],
     clase: [{ id: uid(), kind: 'before', minutes: 10 }],
+    evento: [{ id: uid(), kind: 'before', minutes: 60 }],
   },
 };
 
+/** Mezcla con los valores por defecto (también los avisos de tipos nuevos, p. ej. «evento»). */
+export function withDefaults(s?: Partial<Settings>): Settings {
+  return { ...DEFAULT_SETTINGS, ...s, defaultReminders: { ...DEFAULT_SETTINGS.defaultReminders, ...s?.defaultReminders } } as Settings;
+}
+
 export async function getSettings(): Promise<Settings> {
   const s = await db.settings.get('app');
-  if (s) return { ...DEFAULT_SETTINGS, ...s };
+  if (s) return withDefaults(s);
   await db.settings.put(DEFAULT_SETTINGS);
   return DEFAULT_SETTINGS;
 }

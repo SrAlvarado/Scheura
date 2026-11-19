@@ -6,10 +6,11 @@ import { useAgenda, useSettings, useSubjectMap, useSubjects } from '../../db/hoo
 import { SUBJECT_COLORS } from '../../lib/colors';
 import { addDaysISO, capitalize, fmt, fromISO, longDay, relDays, toISO, todayISO, weekStartISO } from '../../lib/dates';
 import { TYPE_LABEL, TYPES } from '../../lib/labels';
+import { categoryInfo, itemColors } from '../../lib/events';
 import { Icon } from '../../components/Icon';
 import { Chip, LargeHeader, Segmented, Sheet, SubjectDot } from '../../components/ui';
 import {
-  activeCount, type Context, dayDots, EMPTY_FILTERS, type Filters, groupByDate, isKey, itemHref, matches, PINK,
+  activeCount, type Context, dayDots, EMPTY_FILTERS, type Filters, groupByDate, isKey, isPendingTodo, itemHref, matches, PINK,
   type SortMode, sortItems, STATE_LABEL, STATES, toggleIn, useAgendaContext, useFilters, useIsDesktop, useNowMinutes,
 } from './agenda';
 import { AgendaRow, DayButton, hm, layoutBlocks } from './parts';
@@ -207,8 +208,7 @@ export default function Calendario() {
 }
 
 function Pill({ it, subjects }: { it: AgendaItem; subjects: Map<string, Subject> }) {
-  const s = it.subjectId ? subjects.get(it.subjectId) : undefined;
-  const c = s ? SUBJECT_COLORS[s.color] : { bg: '#F0F0F0', fg: '#424242' };
+  const c = itemColors(it, subjects);
   return (
     <span className="pill" style={{ background: c.bg }}>
       {isKey(it) && <span className="pill__key" aria-hidden="true" />}
@@ -223,7 +223,7 @@ function DayPanel({ date, today, items, sort, onSort, subjects, ctx, side }: {
   subjects: Map<string, Subject>; ctx: Context; side: boolean;
 }) {
   const list = sortItems(items, sort);
-  const pending = items.filter((i) => !i.done && i.kind === 'task').length;
+  const pending = items.filter(isPendingTodo).length;
   const summary = `${countLabel(items.length)}${items.length ? ` · ${pending} pendientes` : ''}`;
   const seg = (
     <Segmented label="Ordenar por" value={sort} onChange={onSort}
@@ -278,7 +278,7 @@ function WeekDay({ date, today, items, subjects, ctx }: { date: string; today: s
   const untimed = sortItems(items.filter((i) => !i.time), 'importancia');
   const blocks = layoutBlocks(items);
   const now = useNowMinutes();
-  const pending = items.filter((i) => !i.done && i.kind === 'task').length;
+  const pending = items.filter(isPendingTodo).length;
   const hours: number[] = [];
   for (let h = START_H; h <= END_H; h++) hours.push(h);
   const y = (m: number) => ((Math.min(Math.max(m, START_H * 60), END_H * 60) - START_H * 60) / 60) * HH;
@@ -307,8 +307,8 @@ function WeekDay({ date, today, items, subjects, ctx }: { date: string; today: s
           </div>
         ))}
         {blocks.map((b) => {
-          const s = b.it.subjectId ? subjects.get(b.it.subjectId) : undefined;
-          const c = s ? SUBJECT_COLORS[s.color] : { bg: '#F0F0F0', fg: '#424242' };
+          const s = b.it.subjectId && b.it.type !== 'evento' ? subjects.get(b.it.subjectId) : undefined;
+          const c = itemColors(b.it, subjects);
           const top = y(b.start) + 1;
           const h = Math.max(y(b.end) - y(b.start) - 2, 24);
           const tall = h >= 40;
@@ -326,7 +326,7 @@ function WeekDay({ date, today, items, subjects, ctx }: { date: string; today: s
                 {b.it.repeating && <Icon name="repeat" size={12} stroke={2} />}
                 {!tall && <span className="tl__range">{range}</span>}
               </span>
-              {tall && <span className="tl__range">{range}{s && <> · <span style={{ color: c.fg, fontWeight: 600 }}>{s.name}</span></>}</span>}
+              {tall && <span className="tl__range">{range}{s && <> · <span style={{ color: c.fg, fontWeight: 600 }}>{s.name}</span></>}{b.it.type === 'evento' && <> · <span style={{ color: c.fg, fontWeight: 600 }}>{categoryInfo(b.it.category).emoji} {b.it.location || categoryInfo(b.it.category).label}</span></>}</span>}
             </Link>
           );
         })}
@@ -386,8 +386,8 @@ function WeekGrid({ week, dia, today, byDate, subjects, onPick }: {
             <div key={d} className="wgrid__col" style={{ height: gridH }} data-selected={d === dia || undefined}>
               {hours.map((h) => <i key={h} style={{ top: (h - START_H) * HH }} aria-hidden="true" />)}
               {layoutBlocks(byDate.get(d) ?? []).map((b) => {
-                const s = b.it.subjectId ? subjects.get(b.it.subjectId) : undefined;
-                const c = s ? SUBJECT_COLORS[s.color] : { bg: '#F0F0F0', fg: '#424242' };
+                const s = b.it.subjectId && b.it.type !== 'evento' ? subjects.get(b.it.subjectId) : undefined;
+                const c = itemColors(b.it, subjects);
                 const top = y(b.start) + 1;
                 const h = Math.max(y(b.end) - y(b.start) - 2, 22);
                 const range = `${hm(b.start)}–${hm(Math.min(b.end, 24 * 60 - 1))}`;

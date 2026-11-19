@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { NewKindSwitch } from '../../components/NewKind';
 import { Link, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { Icon } from '../../components/Icon';
 import { Chip, Segmented, SubjectDot, Switch, useToast } from '../../components/ui';
@@ -195,6 +196,7 @@ export default function ExamForm() {
 
       {!ready ? null : (
         <form onSubmit={(e) => { e.preventDefault(); save(); }}>
+          {!editing && <NewKindSwitch current="examen" date={date} title={title} />}
           <div className="st-form-label">
             <span id="asig-lbl">Asignatura</span>
             <Link to="/ajustes/asignaturas">Gestionar</Link>
